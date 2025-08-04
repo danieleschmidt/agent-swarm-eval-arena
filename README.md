@@ -773,9 +773,9 @@ We're particularly interested in:
 ```bibtex
 @software{agent_swarm_eval_arena,
   title = {Agent Swarm Evaluation Arena: A Scalable Platform for Multi-Agent Research},
-  author = {Your Name et al.},
+  author = {Daniel Schmidt},
   year = {2025},
-  url = {https://github.com/yourusername/agent-swarm-eval-arena}
+  url = {https://github.com/danieleschmidt/agent-swarm-eval-arena}
 }
 ```
 
