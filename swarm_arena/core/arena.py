@@ -74,8 +74,9 @@ class Arena:
         self.current_step = 0
         self.episode_rewards: Dict[int, List[float]] = {}
         
-        # Performance tracking
+        # Performance tracking with bounded history
         self.step_times: List[float] = []
+        self._max_performance_history = 1000  # Prevent memory growth
         
     def add_agents(self, agent_class: Type[BaseAgent], count: int, **agent_kwargs: Any) -> None:
         """Add multiple agents of the same type to the arena.
@@ -142,6 +143,10 @@ class Arena:
         self.current_step = 0
         self.step_times.clear()
         
+        # Clear episode rewards history to prevent memory accumulation
+        for agent_id in self.episode_rewards:
+            self.episode_rewards[agent_id].clear()
+        
         return {
             "num_agents": len(self.agents),
             "arena_size": self.config.arena_size,
@@ -187,9 +192,13 @@ class Arena:
                 env_done or 
                 not any(agent.state.alive for agent in self.agents.values()))
         
-        # Performance tracking
+        # Performance tracking with memory bounds
         step_time = time.time() - step_start_time
         self.step_times.append(step_time)
+        
+        # Keep only recent performance history to prevent memory growth
+        if len(self.step_times) > self._max_performance_history:
+            self.step_times = self.step_times[-self._max_performance_history//2:]
         
         info = {
             "step": self.current_step,
