@@ -11,17 +11,30 @@ __author__ = "Daniel Schmidt"
 __email__ = "daniel@terragon.ai"
 
 from .core.arena import Arena
-from .core.agent import Agent, BaseAgent
+from .core.agent import (
+    Agent, BaseAgent, CooperativeAgent, CompetitiveAgent, RandomAgent,
+    LearningAgent, HierarchicalAgent, SwarmAgent, AdaptiveAgent
+)
 from .core.config import SwarmConfig
 from .core.environment import Environment
 from .utils.seeding import set_global_seed
+from .monitoring.telemetry import TelemetryCollector, TelemetryData
 
 # Main exports for public API
 __all__ = [
     "Arena",
     "Agent", 
     "BaseAgent",
+    "CooperativeAgent",
+    "CompetitiveAgent", 
+    "RandomAgent",
+    "LearningAgent",
+    "HierarchicalAgent",
+    "SwarmAgent",
+    "AdaptiveAgent",
     "SwarmConfig",
     "Environment",
     "set_global_seed",
+    "TelemetryCollector",
+    "TelemetryData",
 ]

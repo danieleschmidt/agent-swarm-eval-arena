@@ -10,6 +10,8 @@ from .environment import Environment, ForagingEnvironment
 from .config import SwarmConfig
 from ..utils.physics import SimplePhysicsEngine
 from ..utils.seeding import set_global_seed
+from ..utils.spatial import create_spatial_index
+from ..utils.error_handler import safe_action_execution, with_error_handling, error_manager
 
 
 @dataclass
@@ -65,6 +67,10 @@ class Arena:
         # Initialize physics engine
         self.physics = SimplePhysicsEngine(config)
         
+        # Initialize spatial indexing for efficient neighbor queries
+        spatial_type = "hash_grid" if config.num_agents < 1000 else "quadtree"
+        self.spatial_index = create_spatial_index(config, spatial_type)
+        
         # Agent management
         self.agents: Dict[int, BaseAgent] = {}
         self.agent_positions: Dict[int, np.ndarray] = {}
@@ -104,6 +110,9 @@ class Arena:
             self.agent_positions[agent_id] = initial_position.copy()
             self.agent_velocities[agent_id] = np.zeros(2, dtype=np.float32)
             self.episode_rewards[agent_id] = []
+            
+            # Add to spatial index
+            self.spatial_index.update_agent(agent_id, initial_position)
     
     def add_agent(self, agent: BaseAgent) -> None:
         """Add a single agent to the arena.
@@ -116,6 +125,9 @@ class Arena:
         self.agent_positions[agent_id] = agent.state.position.copy()
         self.agent_velocities[agent_id] = agent.state.velocity.copy()
         self.episode_rewards[agent_id] = []
+        
+        # Add to spatial index
+        self.spatial_index.update_agent(agent_id, agent.state.position)
     
     def reset(self) -> Dict[str, Any]:
         """Reset the arena to initial state.
@@ -147,6 +159,13 @@ class Arena:
         for agent_id in self.episode_rewards:
             self.episode_rewards[agent_id].clear()
         
+        # Reset spatial index
+        self.spatial_index.clear()
+        
+        # Re-populate spatial index with reset positions
+        for agent_id, position in self.agent_positions.items():
+            self.spatial_index.update_agent(agent_id, position)
+        
         return {
             "num_agents": len(self.agents),
             "arena_size": self.config.arena_size,
@@ -164,11 +183,11 @@ class Arena:
         # Get observations for all agents
         observations = self._get_observations()
         
-        # Get actions from all agents
+        # Get actions from all agents with error handling
         actions = {}
         for agent_id, agent in self.agents.items():
             if agent.state.alive:
-                action = agent.act(observations[agent_id])
+                action = safe_action_execution(agent, observations[agent_id])
                 actions[agent_id] = action
         
         # Execute physics step
@@ -305,23 +324,32 @@ class Arena:
                 
             agent_pos = self.agent_positions[agent_id]
             
-            # Get nearby agents within observation radius
+            # Get nearby agents using spatial index (O(1) average case)
+            neighbor_ids = self.spatial_index.query_neighbors_fast(
+                agent_id, self.config.observation_radius
+            )
+            
+            # Convert to position list, filtering for alive agents
             nearby_agents = []
-            for other_id, other_pos in self.agent_positions.items():
-                if (other_id != agent_id and 
-                    self.agents[other_id].state.alive and
-                    np.linalg.norm(other_pos - agent_pos) <= self.config.observation_radius):
-                    nearby_agents.append(other_pos.tolist())
+            for other_id in neighbor_ids:
+                if (other_id in self.agents and 
+                    self.agents[other_id].state.alive):
+                    nearby_agents.append(self.agent_positions[other_id].tolist())
             
             # Get environment-specific observation
             env_obs = self.environment.get_observation_for_agent(agent_id, agent_pos)
             
-            # Combine observations
+            # Combine observations with standardized format
             observations[agent_id] = {
                 **env_obs,
+                "position": agent_pos.tolist(),  # Always include current position
                 "velocity": self.agent_velocities[agent_id].tolist(),
                 "nearby_agents": nearby_agents,
                 "resources": env_obs.get("nearby_resources", []),
+                "arena_bounds": {  # Standardized arena bounds format
+                    "width": self.config.arena_size[0],
+                    "height": self.config.arena_size[1]
+                }
             }
         
         return observations
@@ -365,6 +393,9 @@ class Arena:
             
             # Update agent state
             self.agents[agent_id].update_state(pos, self.agent_velocities[agent_id])
+            
+            # Update spatial index with new position
+            self.spatial_index.update_agent(agent_id, pos)
         
         # Handle collisions if enabled
         if self.config.collision_detection:
