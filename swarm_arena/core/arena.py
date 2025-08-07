@@ -6,12 +6,19 @@ import time
 from dataclasses import dataclass, field
 
 from .agent import BaseAgent, Agent, AgentState
+from .sentiment_aware_agent import SentimentAwareAgent
 from .environment import Environment, ForagingEnvironment
 from .config import SwarmConfig
+from ..sentiment.contagion import SentimentContagion, ContagionParameters
+from ..sentiment.emotional_state import EmotionalState
+from ..monitoring.sentiment_telemetry import SentimentTelemetryCollector
 from ..utils.physics import SimplePhysicsEngine
 from ..utils.seeding import set_global_seed
 from ..utils.spatial import create_spatial_index
 from ..utils.error_handler import safe_action_execution, with_error_handling, error_manager
+from ..utils.logging import get_logger
+
+logger = get_logger(__name__)
 
 
 @dataclass
@@ -21,6 +28,9 @@ class SimulationResults:
     episode_rewards: Dict[int, List[float]] = field(default_factory=dict)
     agent_stats: Dict[int, Dict[str, Any]] = field(default_factory=dict)
     environment_stats: Dict[str, Any] = field(default_factory=dict)
+    sentiment_analytics: Dict[str, Any] = field(default_factory=dict)
+    emotional_evolution: List[Dict[str, Any]] = field(default_factory=list)
+    contagion_statistics: Dict[str, Any] = field(default_factory=dict)
     total_steps: int = 0
     episode_length: int = 0
     mean_reward: float = 0.0
@@ -50,15 +60,19 @@ class Arena:
     collision detection, and maintains simulation state.
     """
     
-    def __init__(self, config: SwarmConfig, environment: Optional[Environment] = None) -> None:
+    def __init__(self, config: SwarmConfig, environment: Optional[Environment] = None,
+                 enable_sentiment: bool = True, contagion_params: Optional[ContagionParameters] = None) -> None:
         """Initialize the arena.
         
         Args:
             config: Swarm configuration
             environment: Environment instance (defaults to ForagingEnvironment)
+            enable_sentiment: Enable sentiment-aware features
+            contagion_params: Parameters for sentiment contagion (optional)
         """
         self.config = config
         self.environment = environment or ForagingEnvironment(config)
+        self.enable_sentiment = enable_sentiment
         
         # Set global seed for reproducibility
         if config.seed is not None:
@@ -76,6 +90,16 @@ class Arena:
         self.agent_positions: Dict[int, np.ndarray] = {}
         self.agent_velocities: Dict[int, np.ndarray] = {}
         
+        # Sentiment-aware components
+        if self.enable_sentiment:
+            self.sentiment_contagion = SentimentContagion(contagion_params or ContagionParameters())
+            self.sentiment_telemetry = SentimentTelemetryCollector(
+                buffer_size=1000, streaming_enabled=False
+            )
+        else:
+            self.sentiment_contagion = None
+            self.sentiment_telemetry = None
+        
         # Simulation state
         self.current_step = 0
         self.episode_rewards: Dict[int, List[float]] = {}
@@ -83,6 +107,8 @@ class Arena:
         # Performance tracking with bounded history
         self.step_times: List[float] = []
         self._max_performance_history = 1000  # Prevent memory growth
+        
+        logger.info(f"Arena initialized with sentiment_enabled={enable_sentiment}, agents_capacity={config.num_agents}")
         
     def add_agents(self, agent_class: Type[BaseAgent], count: int, **agent_kwargs: Any) -> None:
         """Add multiple agents of the same type to the arena.
@@ -180,6 +206,38 @@ class Arena:
         """
         step_start_time = time.time()
         
+        # Process sentiment contagion first if enabled
+        sentiment_processing_time = 0.0
+        contagion_processing_time = 0.0
+        
+        if self.enable_sentiment and self.sentiment_contagion:
+            contagion_start = time.time()
+            
+            # Get sentiment-aware agents
+            sentiment_agents = {
+                agent_id: agent.emotional_state 
+                for agent_id, agent in self.agents.items() 
+                if isinstance(agent, SentimentAwareAgent) and agent.state.alive
+            }
+            
+            if sentiment_agents:
+                # Process emotional contagion
+                influences_per_agent = self.sentiment_contagion.process_emotional_contagion(
+                    sentiment_agents, self.agent_positions
+                )
+                
+                # Apply influences to agents
+                for agent_id, influences in influences_per_agent.items():
+                    if agent_id in self.agents and isinstance(self.agents[agent_id], SentimentAwareAgent):
+                        for influence in influences:
+                            peer_id = influence.source_agent_id
+                            if peer_id in sentiment_agents:
+                                self.agents[agent_id].apply_peer_emotional_influence(
+                                    peer_id, sentiment_agents[peer_id], influence.distance
+                                )
+            
+            contagion_processing_time = (time.time() - contagion_start) * 1000
+        
         # Get observations for all agents
         observations = self._get_observations()
         
@@ -205,6 +263,28 @@ class Arena:
                 agent.record_action(actions[agent_id], rewards[agent_id])
                 self.episode_rewards[agent_id].append(rewards[agent_id])
         
+        # Collect sentiment metrics if enabled
+        if self.enable_sentiment and self.sentiment_telemetry:
+            sentiment_start = time.time()
+            
+            sentiment_agents = {
+                agent_id: agent.emotional_state 
+                for agent_id, agent in self.agents.items() 
+                if isinstance(agent, SentimentAwareAgent) and agent.state.alive
+            }
+            
+            if sentiment_agents:
+                processing_times = {
+                    'sentiment': sentiment_processing_time,
+                    'contagion': contagion_processing_time
+                }
+                
+                self.sentiment_telemetry.collect_sentiment_metrics(
+                    sentiment_agents, self.sentiment_contagion, processing_times
+                )
+            
+            sentiment_processing_time = (time.time() - sentiment_start) * 1000
+        
         # Check if simulation is done
         self.current_step += 1
         done = (self.current_step >= self.config.episode_length or 
@@ -219,6 +299,7 @@ class Arena:
         if len(self.step_times) > self._max_performance_history:
             self.step_times = self.step_times[-self._max_performance_history//2:]
         
+        # Enhanced info with sentiment metrics
         info = {
             "step": self.current_step,
             "active_agents": sum(1 for agent in self.agents.values() if agent.state.alive),
@@ -226,6 +307,18 @@ class Arena:
             "average_step_time": np.mean(self.step_times[-100:]),  # Last 100 steps
             **env_info
         }
+        
+        # Add sentiment info if enabled
+        if self.enable_sentiment:
+            sentiment_aware_count = sum(1 for agent in self.agents.values() 
+                                      if isinstance(agent, SentimentAwareAgent) and agent.state.alive)
+            
+            info.update({
+                "sentiment_enabled": True,
+                "sentiment_aware_agents": sentiment_aware_count,
+                "sentiment_processing_time": sentiment_processing_time,
+                "contagion_processing_time": contagion_processing_time
+            })
         
         return observations, rewards, done, info
     
@@ -264,11 +357,25 @@ class Arena:
                 episode_total = sum(self.episode_rewards[agent_id])
                 all_episode_rewards[agent_id].append(episode_total)
         
+        # Collect sentiment analytics if enabled
+        sentiment_analytics = {}
+        contagion_statistics = {}
+        emotional_evolution = []
+        
+        if self.enable_sentiment and self.sentiment_telemetry:
+            sentiment_analytics = self.sentiment_telemetry.get_sentiment_analytics()
+            
+            if self.sentiment_contagion:
+                contagion_statistics = self.sentiment_contagion.get_contagion_statistics()
+        
         # Create results
         results = SimulationResults(
             episode_rewards=all_episode_rewards,
             agent_stats={agent_id: agent.get_stats() for agent_id, agent in self.agents.items()},
             environment_stats=self.environment.get_stats(),
+            sentiment_analytics=sentiment_analytics,
+            emotional_evolution=emotional_evolution,
+            contagion_statistics=contagion_statistics,
             total_steps=self.current_step * episodes,
             episode_length=self.current_step,
         )
@@ -278,6 +385,17 @@ class Arena:
             print(f"Mean reward per episode: {results.mean_reward:.3f}")
             if results.fairness_index is not None:
                 print(f"Fairness index: {results.fairness_index:.3f}")
+            
+            # Print sentiment summary if available
+            if self.enable_sentiment and sentiment_analytics:
+                if 'population_trends' in sentiment_analytics:
+                    pop_trends = sentiment_analytics['population_trends']
+                    print(f"Population valence: {pop_trends.get('valence', {}).get('current', 0.0):.3f}")
+                    print(f"Emotional diversity: {sentiment_analytics.get('emotion_distributions', {}).get('diversity', {}).get('current', 0.0):.3f}")
+                
+                if contagion_statistics:
+                    print(f"Contagion events: {contagion_statistics.get('contagion_events', 0)}")
+                    print(f"Emotional clusters: {contagion_statistics.get('emotional_clusters', 0)}")
         
         return results
     
