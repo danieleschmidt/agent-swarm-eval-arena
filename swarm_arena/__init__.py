@@ -15,23 +15,13 @@ from .core.agent import (
     Agent, BaseAgent, CooperativeAgent, CompetitiveAgent, RandomAgent,
     LearningAgent, HierarchicalAgent, SwarmAgent, AdaptiveAgent
 )
-from .core.sentiment_aware_agent import (
-    SentimentAwareAgent, EmotionalCooperativeAgent, EmotionalCompetitiveAgent,
-    EmotionalAdaptiveAgent, SentimentAwareAgentConfig
-)
 from .core.config import SwarmConfig
 from .core.environment import Environment
 from .utils.seeding import set_global_seed
 from .monitoring.telemetry import TelemetryCollector, TelemetryData
-from .monitoring.sentiment_telemetry import SentimentTelemetryCollector, SentimentMetrics
-from .sentiment.processor import SentimentProcessor, SentimentData
-from .sentiment.emotional_state import EmotionalState, EmotionType
-from .sentiment.contagion import SentimentContagion, ContagionParameters
-from .sentiment.memory import SentimentMemoryBuffer
 
 # Main exports for public API
 __all__ = [
-    # Core components
     "Arena",
     "Agent", 
     "BaseAgent",
@@ -45,26 +35,6 @@ __all__ = [
     "SwarmConfig",
     "Environment",
     "set_global_seed",
-    
-    # Sentiment-aware agents
-    "SentimentAwareAgent",
-    "EmotionalCooperativeAgent", 
-    "EmotionalCompetitiveAgent",
-    "EmotionalAdaptiveAgent",
-    "SentimentAwareAgentConfig",
-    
-    # Sentiment processing
-    "SentimentProcessor",
-    "SentimentData",
-    "EmotionalState", 
-    "EmotionType",
-    "SentimentContagion",
-    "ContagionParameters",
-    "SentimentMemoryBuffer",
-    
-    # Monitoring and telemetry
     "TelemetryCollector",
     "TelemetryData",
-    "SentimentTelemetryCollector",
-    "SentimentMetrics",
 ]
