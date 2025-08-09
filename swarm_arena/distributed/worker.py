@@ -17,10 +17,82 @@ logger = get_logger(__name__)
 
 @ray.remote
 class ArenaWorker:
-    \"\"\"Ray worker for distributed arena simulation.\"\"\"
+    """Ray worker for distributed arena simulation."""
     
-    def __init__(self, 
-                 worker_id: int,
-                 config: SwarmConfig,
-                 agent_id_offset: int = 0,
-                 environment_class: Optional[Type[Environment]] = None) -> None:\n        \"\"\"Initialize worker.\n        \n        Args:\n            worker_id: Unique worker identifier\n            config: Swarm configuration for this worker\n            agent_id_offset: Offset for agent IDs to ensure uniqueness\n            environment_class: Environment class to use\n        \"\"\"\n        self.worker_id = worker_id\n        self.config = config.copy()\n        self.agent_id_offset = agent_id_offset\n        \n        # Create environment\n        if environment_class:\n            environment = environment_class(self.config)\n        else:\n            environment = ForagingEnvironment(self.config)  # Default\n        \n        # Create local arena\n        self.arena = Arena(self.config, environment)\n        \n        # Performance tracking\n        self.step_count = 0\n        self.total_step_time = 0.0\n        \n        logger.info(f\"Worker {worker_id} initialized with {config.num_agents} agents\")\n    \n    def add_agents(self, agent_class: Type[BaseAgent], count: int, **agent_kwargs: Any) -> None:\n        \"\"\"Add agents to this worker's arena.\n        \n        Args:\n            agent_class: Agent class to instantiate\n            count: Number of agents to add\n            **agent_kwargs: Additional agent parameters\n        \"\"\"\n        try:\n            # Adjust agent IDs to ensure global uniqueness\n            original_count = len(self.arena.agents)\n            \n            for i in range(count):\n                global_agent_id = self.agent_id_offset + original_count + i\n                \n                # Generate initial position\n                initial_position = np.array([\n                    np.random.uniform(50, self.config.arena_size[0] - 50),\n                    np.random.uniform(50, self.config.arena_size[1] - 50)\n                ])\n                \n                # Create agent with global ID\n                agent = agent_class(global_agent_id, initial_position, **agent_kwargs)\n                self.arena.add_agent(agent)\n            \n            logger.debug(f\"Worker {self.worker_id} added {count} agents of type {agent_class.__name__}\")\n            \n        except Exception as e:\n            raise SimulationError(f\"Worker {self.worker_id} failed to add agents: {str(e)}\")\n    \n    def reset(self) -> Dict[str, Any]:\n        \"\"\"Reset worker's arena.\n        \n        Returns:\n            Reset information\n        \"\"\"\n        try:\n            result = self.arena.reset()\n            self.step_count = 0\n            self.total_step_time = 0.0\n            \n            worker_result = {\n                \"worker_id\": self.worker_id,\n                \"num_agents\": len(self.arena.agents),\n                \"arena_size\": self.config.arena_size,\n                **result\n            }\n            \n            logger.debug(f\"Worker {self.worker_id} reset with {len(self.arena.agents)} agents\")\n            return worker_result\n            \n        except Exception as e:\n            raise SimulationError(f\"Worker {self.worker_id} reset failed: {str(e)}\")\n    \n    def step(self) -> tuple:\n        \"\"\"Execute one simulation step.\n        \n        Returns:\n            Tuple of (observations, rewards, done, info) with worker-specific agent IDs\n        \"\"\"\n        try:\n            step_start = time.time()\n            \n            observations, rewards, done, info = self.arena.step()\n            \n            step_time = time.time() - step_start\n            self.step_count += 1\n            self.total_step_time += step_time\n            \n            # Add worker-specific information\n            worker_info = {\n                \"worker_id\": self.worker_id,\n                \"step_time\": step_time,\n                \"avg_step_time\": self.total_step_time / self.step_count,\n                \"agent_count\": len(self.arena.agents),\n                \"active_agents\": sum(1 for agent in self.arena.agents.values() if agent.state.alive),\n                **info\n            }\n            \n            return observations, rewards, done, worker_info\n            \n        except Exception as e:\n            raise SimulationError(f\"Worker {self.worker_id} step failed: {str(e)}\")\n    \n    def get_episode_rewards(self) -> Dict[int, float]:\n        \"\"\"Get total episode rewards for all agents.\n        \n        Returns:\n            Dictionary mapping agent_id to total episode reward\n        \"\"\"\n        try:\n            episode_rewards = {}\n            for agent_id, rewards in self.arena.episode_rewards.items():\n                episode_rewards[agent_id] = sum(rewards)\n            \n            return episode_rewards\n            \n        except Exception as e:\n            logger.error(f\"Worker {self.worker_id} failed to get episode rewards: {str(e)}\")\n            return {}\n    \n    def get_agent_stats(self) -> Dict[int, Dict[str, Any]]:\n        \"\"\"Get statistics for all agents.\n        \n        Returns:\n            Dictionary mapping agent_id to agent stats\n        \"\"\"\n        try:\n            return {agent_id: agent.get_stats() for agent_id, agent in self.arena.agents.items()}\n            \n        except Exception as e:\n            logger.error(f\"Worker {self.worker_id} failed to get agent stats: {str(e)}\")\n            return {}\n    \n    def evaluate_scenario(self, scenario: Dict[str, Any], metrics: List[str]) -> SimulationResults:\n        \"\"\"Evaluate a specific scenario.\n        \n        Args:\n            scenario: Scenario configuration\n            metrics: Metrics to compute\n            \n        Returns:\n            Simulation results for this scenario\n        \"\"\"\n        try:\n            # Apply scenario configuration\n            scenario_config = self.config.copy()\n            \n            # Update config with scenario parameters\n            for key, value in scenario.items():\n                if hasattr(scenario_config, key):\n                    setattr(scenario_config, key, value)\n            \n            # Create temporary arena for scenario\n            temp_arena = Arena(scenario_config, self.arena.environment)\n            \n            # Copy agents to temporary arena (simplified)\n            for agent in self.arena.agents.values():\n                temp_arena.add_agent(agent)\n            \n            # Run evaluation\n            results = temp_arena.evaluate(\n                num_episodes=1,\n                metrics=metrics,\n                record_trajectories=False\n            )\n            \n            logger.debug(f\"Worker {self.worker_id} completed scenario evaluation\")\n            return results\n            \n        except Exception as e:\n            raise SimulationError(f\"Worker {self.worker_id} scenario evaluation failed: {str(e)}\")\n    \n    def get_performance_stats(self) -> Dict[str, Any]:\n        \"\"\"Get worker performance statistics.\n        \n        Returns:\n            Performance statistics dictionary\n        \"\"\"\n        return {\n            \"worker_id\": self.worker_id,\n            \"total_steps\": self.step_count,\n            \"total_step_time\": self.total_step_time,\n            \"avg_step_time\": self.total_step_time / max(1, self.step_count),\n            \"agents_count\": len(self.arena.agents),\n            \"current_episode_step\": self.arena.current_step\n        }\n    \n    def shutdown(self) -> None:\n        \"\"\"Shutdown worker and cleanup resources.\"\"\"\n        try:\n            # Clear arena resources\n            self.arena.agents.clear()\n            self.arena.agent_positions.clear()\n            self.arena.agent_velocities.clear()\n            self.arena.episode_rewards.clear()\n            \n            logger.debug(f\"Worker {self.worker_id} shut down successfully\")\n            \n        except Exception as e:\n            logger.error(f\"Worker {self.worker_id} shutdown error: {str(e)}\")\n    \n    def run_episodes(self, episodes: int, verbose: bool = False) -> SimulationResults:\n        \"\"\"Run multiple episodes on this worker.\n        \n        Args:\n            episodes: Number of episodes to run\n            verbose: Whether to log progress\n            \n        Returns:\n            Simulation results\n        \"\"\"\n        try:\n            results = self.arena.run(episodes=episodes, verbose=verbose)\n            \n            if verbose:\n                logger.info(f\"Worker {self.worker_id} completed {episodes} episodes\")\n            \n            return results\n            \n        except Exception as e:\n            raise SimulationError(f\"Worker {self.worker_id} episode execution failed: {str(e)}\")
+    def __init__(self, worker_id: int, config: SwarmConfig, agents_per_worker: int):
+        """Initialize arena worker.
+        
+        Args:
+            worker_id: Unique worker identifier
+            config: Swarm configuration
+            agents_per_worker: Number of agents this worker will handle
+        """
+        self.worker_id = worker_id
+        self.config = config
+        self.agents_per_worker = agents_per_worker
+        
+        # Create worker-specific config
+        worker_config = config.copy(num_agents=agents_per_worker)
+        self.arena = Arena(worker_config)
+        
+        logger.info(f"ArenaWorker {worker_id} initialized with {agents_per_worker} agents")
+    
+    def add_agents(self, agent_class: Type[BaseAgent], count: int) -> str:
+        """Add agents to this worker's arena."""
+        self.arena.add_agents(agent_class, count)
+        return f"Worker {self.worker_id}: Added {count} {agent_class.__name__} agents"
+    
+    def reset(self) -> Dict[str, Any]:
+        """Reset the worker's arena."""
+        return self.arena.reset()
+    
+    def step(self) -> tuple:
+        """Execute one simulation step."""
+        return self.arena.step()
+    
+    def run_episode(self, episode_length: Optional[int] = None) -> Dict[str, Any]:
+        """Run a complete episode."""
+        if episode_length is None:
+            episode_length = self.config.episode_length
+        
+        # Reset arena for new episode
+        self.arena.reset()
+        
+        # Track episode data
+        step_count = 0
+        total_rewards = {}
+        
+        # Run episode step by step
+        for step in range(episode_length):
+            observations, rewards, done, info = self.arena.step()
+            
+            # Accumulate rewards
+            for agent_id, reward in rewards.items():
+                if agent_id not in total_rewards:
+                    total_rewards[agent_id] = []
+                total_rewards[agent_id].append(reward)
+            
+            step_count += 1
+            if done:
+                break
+        
+        return {
+            "worker_id": self.worker_id,
+            "steps": step_count,
+            "total_rewards": total_rewards,
+            "agent_stats": {aid: agent.get_stats() for aid, agent in self.arena.agents.items()}
+        }
+    
+    def get_stats(self) -> Dict[str, Any]:
+        """Get worker statistics."""
+        return {
+            "worker_id": self.worker_id,
+            "num_agents": len(self.arena.agents),
+            "current_step": self.arena.current_step,
+            "arena_size": self.config.arena_size
+        }
+    
+    def shutdown(self) -> None:
+        """Shutdown worker."""
+        logger.info(f"ArenaWorker {self.worker_id} shutting down")
+        # Cleanup resources if needed
