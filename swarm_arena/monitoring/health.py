@@ -86,16 +86,19 @@ class HealthMonitor:
     """Comprehensive health monitoring system."""
     
     def __init__(self, 
+                 arena=None,
                  check_interval: float = 5.0,
                  history_size: int = 100,
                  auto_start: bool = True):
         """Initialize health monitor.
         
         Args:
+            arena: Arena instance to monitor (optional)
             check_interval: Seconds between health checks
             history_size: Number of health snapshots to keep
             auto_start: Whether to start monitoring automatically
         """
+        self.arena = arena
         self.check_interval = check_interval
         self.history_size = history_size
         
@@ -420,6 +423,49 @@ class HealthMonitor:
                     "cpu": current.cpu_usage_trend,
                     "memory": current.memory_usage_trend
                 }
+            }
+    
+    def check_system_health(self) -> Dict[str, Any]:
+        """Check overall system health status.
+        
+        Returns:
+            Health status dictionary with component checks
+        """
+        try:
+            # Update metrics if arena is available
+            if self.arena:
+                self.update_health_metrics(self.arena)
+            
+            with self.lock:
+                current = self.current_metrics
+                
+                # Check individual components
+                components = {
+                    "cpu_usage": current.cpu_percent < 90,
+                    "memory_usage": current.memory_percent < 90,
+                    "agent_health": current.active_agents >= 0,
+                    "error_rate": current.recent_errors < 10,
+                    "performance": current.avg_step_time_ms < 1000
+                }
+                
+                # Determine overall status
+                all_healthy = all(components.values())
+                status = "healthy" if all_healthy else "degraded"
+                
+                return {
+                    "status": status,
+                    "components": components,
+                    "timestamp": current.timestamp,
+                    "overall_status": current.overall_status
+                }
+                
+        except Exception as e:
+            logger.error(f"Health check failed: {str(e)}")
+            return {
+                "status": "error",
+                "components": {},
+                "timestamp": time.time(),
+                "error": str(e)
             }
     
     def _monitoring_loop(self) -> None:
