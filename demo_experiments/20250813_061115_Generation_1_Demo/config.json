@@ -1,0 +1,16 @@
+{
+  "name": "Generation 1 Demo",
+  "description": "Demonstrating basic swarm arena functionality",
+  "seed": 42,
+  "parameters": {
+    "num_agents": 50,
+    "episode_length": 100
+  },
+  "environment": {
+    "PATH": "/root/repo/.venv/bin:/root/.cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin"
+  },
+  "timestamp": 1755065475.2427962,
+  "git_commit": "3e98554ab7a813519fbb09096df9c30fca9382fc",
+  "python_version": "3.12.3 (main, Jun 18 2025, 17:59:45) [GCC 13.3.0]",
+  "dependencies": {}
+}
