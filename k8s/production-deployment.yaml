@@ -1,0 +1,542 @@
+# Kubernetes production deployment for Swarm Arena
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: swarm-arena
+  labels:
+    name: swarm-arena
+    environment: production
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: swarm-arena-config
+  namespace: swarm-arena
+data:
+  production.json: |
+    {
+      "num_agents": 1000,
+      "arena_size": [2000, 2000],
+      "episode_length": 1000,
+      "resource_spawn_rate": 0.1,
+      "physics_engine": "simple",
+      "collision_detection": true,
+      "communication_enabled": false,
+      "seed": null,
+      "render_mode": "none",
+      "observation_radius": 100.0,
+      "max_agent_speed": 10.0,
+      "environment_config": {
+        "max_resources": 500,
+        "resource_respawn": true
+      }
+    }
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: swarm-arena-secrets
+  namespace: swarm-arena
+type: Opaque
+data:
+  # Base64 encoded secrets
+  redis_password: cGFzc3dvcmQxMjM=  # password123
+  api_key: YWRtaW4tc2VjcmV0LWtleQ==     # admin-secret-key
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: swarm-arena-app
+  namespace: swarm-arena
+  labels:
+    app: swarm-arena
+    component: application
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: swarm-arena
+      component: application
+  template:
+    metadata:
+      labels:
+        app: swarm-arena
+        component: application
+    spec:
+      serviceAccountName: swarm-arena-service-account
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+      - name: swarm-arena
+        image: swarm-arena:production
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+        env:
+        - name: SWARM_ENV
+          value: "production"
+        - name: SWARM_LOG_LEVEL
+          value: "INFO"
+        - name: SWARM_CONFIG_PATH
+          value: "/app/config/production.json"
+        - name: REDIS_URL
+          value: "redis://swarm-arena-redis:6379"
+        - name: RAY_ADDRESS
+          value: "ray://swarm-arena-ray-head:10001"
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: swarm-arena-secrets
+              key: redis_password
+        volumeMounts:
+        - name: config-volume
+          mountPath: /app/config
+          readOnly: true
+        - name: data-volume
+          mountPath: /app/data
+        - name: logs-volume
+          mountPath: /app/logs
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+      volumes:
+      - name: config-volume
+        configMap:
+          name: swarm-arena-config
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: swarm-arena-data-pvc
+      - name: logs-volume
+        persistentVolumeClaim:
+          claimName: swarm-arena-logs-pvc
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: swarm-arena-service
+  namespace: swarm-arena
+  labels:
+    app: swarm-arena
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  selector:
+    app: swarm-arena
+    component: application
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: swarm-arena-ingress
+  namespace: swarm-arena
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  tls:
+  - hosts:
+    - swarm-arena.example.com
+    secretName: swarm-arena-tls
+  rules:
+  - host: swarm-arena.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: swarm-arena-service
+            port:
+              number: 80
+
+---
+
+# Redis Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: swarm-arena-redis
+  namespace: swarm-arena
+  labels:
+    app: swarm-arena
+    component: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: swarm-arena
+      component: redis
+  template:
+    metadata:
+      labels:
+        app: swarm-arena
+        component: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:7-alpine
+        ports:
+        - containerPort: 6379
+        command:
+        - redis-server
+        - --appendonly
+        - "yes"
+        - --maxmemory
+        - "512mb"
+        - --maxmemory-policy
+        - "allkeys-lru"
+        - --requirepass
+        - "$(REDIS_PASSWORD)"
+        env:
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: swarm-arena-secrets
+              key: redis_password
+        volumeMounts:
+        - name: redis-data
+          mountPath: /data
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          exec:
+            command:
+            - redis-cli
+            - ping
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          exec:
+            command:
+            - redis-cli
+            - ping
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+      - name: redis-data
+        persistentVolumeClaim:
+          claimName: swarm-arena-redis-pvc
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: swarm-arena-redis
+  namespace: swarm-arena
+  labels:
+    app: swarm-arena
+    component: redis
+spec:
+  type: ClusterIP
+  ports:
+  - port: 6379
+    targetPort: 6379
+    protocol: TCP
+  selector:
+    app: swarm-arena
+    component: redis
+
+---
+
+# Ray Head Node Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: swarm-arena-ray-head
+  namespace: swarm-arena
+  labels:
+    app: swarm-arena
+    component: ray-head
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: swarm-arena
+      component: ray-head
+  template:
+    metadata:
+      labels:
+        app: swarm-arena
+        component: ray-head
+    spec:
+      containers:
+      - name: ray-head
+        image: swarm-arena:distributed
+        ports:
+        - containerPort: 10001
+          name: ray-client
+        - containerPort: 8265
+          name: ray-dashboard
+        command:
+        - ray
+        - start
+        - --head
+        - --port=10001
+        - --dashboard-host=0.0.0.0
+        - --dashboard-port=8265
+        - --block
+        env:
+        - name: RAY_DISABLE_IMPORT_WARNING
+          value: "1"
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+        volumeMounts:
+        - name: ray-data
+          mountPath: /tmp/ray
+      volumes:
+      - name: ray-data
+        emptyDir: {}
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: swarm-arena-ray-head
+  namespace: swarm-arena
+  labels:
+    app: swarm-arena
+    component: ray-head
+spec:
+  type: ClusterIP
+  ports:
+  - port: 10001
+    targetPort: 10001
+    protocol: TCP
+    name: ray-client
+  - port: 8265
+    targetPort: 8265
+    protocol: TCP
+    name: ray-dashboard
+  selector:
+    app: swarm-arena
+    component: ray-head
+
+---
+
+# Ray Worker Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: swarm-arena-ray-worker
+  namespace: swarm-arena
+  labels:
+    app: swarm-arena
+    component: ray-worker
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: swarm-arena
+      component: ray-worker
+  template:
+    metadata:
+      labels:
+        app: swarm-arena
+        component: ray-worker
+    spec:
+      containers:
+      - name: ray-worker
+        image: swarm-arena:distributed
+        command:
+        - ray
+        - start
+        - --address=swarm-arena-ray-head:10001
+        - --block
+        env:
+        - name: RAY_DISABLE_IMPORT_WARNING
+          value: "1"
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+
+---
+
+# Horizontal Pod Autoscaler
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: swarm-arena-hpa
+  namespace: swarm-arena
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: swarm-arena-app
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+
+---
+
+# Persistent Volume Claims
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: swarm-arena-data-pvc
+  namespace: swarm-arena
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: swarm-arena-logs-pvc
+  namespace: swarm-arena
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: swarm-arena-redis-pvc
+  namespace: swarm-arena
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+
+---
+
+# Service Account
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: swarm-arena-service-account
+  namespace: swarm-arena
+
+---
+
+# Network Policy
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: swarm-arena-network-policy
+  namespace: swarm-arena
+spec:
+  podSelector:
+    matchLabels:
+      app: swarm-arena
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ingress-nginx
+    ports:
+    - protocol: TCP
+      port: 8080
+  - from:
+    - podSelector:
+        matchLabels:
+          app: swarm-arena
+    ports:
+    - protocol: TCP
+      port: 6379
+    - protocol: TCP
+      port: 10001
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          app: swarm-arena
+    ports:
+    - protocol: TCP
+      port: 6379
+    - protocol: TCP
+      port: 10001
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 53
+    - protocol: UDP
+      port: 53
