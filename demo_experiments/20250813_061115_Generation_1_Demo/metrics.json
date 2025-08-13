@@ -1,0 +1,6 @@
+{
+  "demo_metric": 0.85,
+  "accuracy": 0.92,
+  "efficiency": 0.78,
+  "fairness": 0.65
+}

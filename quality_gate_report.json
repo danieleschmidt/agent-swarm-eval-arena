@@ -1,0 +1,100 @@
+{
+  "timestamp": 1755066444.350809,
+  "summary": {
+    "total_gates": 7,
+    "passed_gates": 5,
+    "failed_gates": 2,
+    "critical_gates": 5,
+    "critical_passed": 3,
+    "overall_pass": false,
+    "pass_rate": 0.7142857142857143
+  },
+  "results": [
+    {
+      "name": "Code Quality",
+      "critical": true,
+      "passed": true,
+      "message": "All code quality checks passed",
+      "metrics": {
+        "required_files_present": 5,
+        "imports_successful": true
+      },
+      "execution_time": 0.021101713180541992
+    },
+    {
+      "name": "Test Coverage",
+      "critical": true,
+      "passed": false,
+      "message": "Tests failed: /root/repo/.venv/bin/python: No module named pytest\n",
+      "metrics": {},
+      "execution_time": 0.03976011276245117
+    },
+    {
+      "name": "Performance",
+      "critical": true,
+      "passed": false,
+      "message": "Performance issues: Throughput 21.4 < 50.0 steps/sec",
+      "metrics": {
+        "response_time": 2.341754198074341,
+        "throughput": 21.35151504846911,
+        "max_response_time": 30.0,
+        "min_throughput": 50.0
+      },
+      "execution_time": 2.741321325302124
+    },
+    {
+      "name": "Security",
+      "critical": true,
+      "passed": true,
+      "message": "All security checks passed",
+      "metrics": {
+        "authentication_working": true,
+        "input_validation_working": true,
+        "xss_prevention_working": true
+      },
+      "execution_time": 1.0273492336273193
+    },
+    {
+      "name": "Scalability",
+      "critical": false,
+      "passed": true,
+      "message": "Scalability requirements met: 16.3% memory, 0.0% CPU",
+      "metrics": {
+        "memory_usage": 16.3,
+        "cpu_usage": 0.0,
+        "execution_time": 12.927354097366333,
+        "scalability_score": 0.038677674969997466,
+        "agents_simulated": 200
+      },
+      "execution_time": 13.153802394866943
+    },
+    {
+      "name": "Reliability",
+      "critical": true,
+      "passed": true,
+      "message": "All reliability checks passed",
+      "metrics": {
+        "circuit_breaker_working": true,
+        "retry_mechanism_working": true,
+        "fault_tolerance_verified": true
+      },
+      "execution_time": 0.024168729782104492
+    },
+    {
+      "name": "Monitoring",
+      "critical": false,
+      "passed": true,
+      "message": "All monitoring checks passed",
+      "metrics": {
+        "metrics_collection_working": true,
+        "performance_profiling_working": true,
+        "total_metrics": 11
+      },
+      "execution_time": 0.010436534881591797
+    }
+  ],
+  "recommendations": [
+    "\ud83d\udea8 CRITICAL: Fix Test Coverage - Tests failed: /root/repo/.venv/bin/python: No module named pytest\n",
+    "\ud83d\udea8 CRITICAL: Fix Performance - Performance issues: Throughput 21.4 < 50.0 steps/sec"
+  ]
+}
