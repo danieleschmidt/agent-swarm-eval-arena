@@ -1,0 +1,94 @@
+# Production Dockerfile for Swarm Arena
+FROM python:3.11-slim-bullseye AS base
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+# Create non-root user
+RUN groupadd --gid 1000 swarm && \
+    useradd --uid 1000 --gid swarm --shell /bin/bash --create-home swarm
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /app
+
+# Copy requirements first for better caching
+COPY pyproject.toml ./
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -e .
+
+# Development stage
+FROM base AS development
+
+# Install development dependencies
+RUN pip install --no-cache-dir -e ".[dev,viz,distributed]"
+
+# Copy source code
+COPY --chown=swarm:swarm . .
+
+# Switch to non-root user
+USER swarm
+
+# Expose ports
+EXPOSE 8080 8888
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD python -c "from swarm_arena import Arena; print('OK')" || exit 1
+
+# Default command
+CMD ["python", "-m", "swarm_arena.cli", "--help"]
+
+# Production stage
+FROM base AS production
+
+# Install only production dependencies
+RUN pip install --no-cache-dir -e .
+
+# Copy source code
+COPY --chown=swarm:swarm swarm_arena/ ./swarm_arena/
+COPY --chown=swarm:swarm pyproject.toml ./
+
+# Create necessary directories
+RUN mkdir -p /app/logs /app/data /app/config && \
+    chown -R swarm:swarm /app
+
+# Switch to non-root user
+USER swarm
+
+# Expose ports
+EXPOSE 8080
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD python -c "from swarm_arena import Arena; print('OK')" || exit 1
+
+# Production command
+CMD ["python", "-m", "swarm_arena.cli", "run", "--config-file", "/app/config/production.json"]
+
+# Multi-worker stage for distributed execution
+FROM production AS distributed
+
+# Install Ray and distributed dependencies
+USER root
+RUN pip install --no-cache-dir ray[default]==2.8.0 redis kubernetes docker
+
+# Switch back to non-root user
+USER swarm
+
+# Expose Ray ports
+EXPOSE 10001 8265
+
+# Ray head node command
+CMD ["ray", "start", "--head", "--port=10001", "--dashboard-host=0.0.0.0", "--dashboard-port=8265", "--block"]

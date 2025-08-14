@@ -1,0 +1,210 @@
+version: '3.8'
+
+services:
+  # Main application service
+  swarm-arena:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.production
+      target: production
+    container_name: swarm-arena-app
+    restart: unless-stopped
+    environment:
+      - SWARM_ENV=production
+      - SWARM_LOG_LEVEL=INFO
+      - SWARM_CONFIG_PATH=/app/config/production.json
+      - REDIS_URL=redis://redis:6379
+      - RAY_ADDRESS=ray://ray-head:10001
+    ports:
+      - "8080:8080"
+    volumes:
+      - swarm-data:/app/data
+      - swarm-logs:/app/logs
+      - ./config:/app/config:ro
+    depends_on:
+      - redis
+      - ray-head
+    networks:
+      - swarm-network
+    healthcheck:
+      test: ["CMD", "python", "-c", "from swarm_arena import Arena; print('OK')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Redis for caching and session storage
+  redis:
+    image: redis:7-alpine
+    container_name: swarm-arena-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - swarm-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Ray head node for distributed computing
+  ray-head:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.production
+      target: distributed
+    container_name: swarm-arena-ray-head
+    restart: unless-stopped
+    environment:
+      - RAY_DISABLE_IMPORT_WARNING=1
+    ports:
+      - "10001:10001"  # Ray client port
+      - "8265:8265"    # Ray dashboard
+    volumes:
+      - ray-data:/tmp/ray
+    networks:
+      - swarm-network
+    healthcheck:
+      test: ["CMD", "ray", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Ray worker nodes (can be scaled)
+  ray-worker:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.production
+      target: distributed
+    restart: unless-stopped
+    environment:
+      - RAY_DISABLE_IMPORT_WARNING=1
+    command: ray start --address=ray-head:10001 --block
+    depends_on:
+      - ray-head
+    networks:
+      - swarm-network
+    healthcheck:
+      test: ["CMD", "ray", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # NGINX reverse proxy and load balancer
+  nginx:
+    image: nginx:1.24-alpine
+    container_name: swarm-arena-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - swarm-logs:/var/log/nginx
+    depends_on:
+      - swarm-arena
+    networks:
+      - swarm-network
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Monitoring with Prometheus
+  prometheus:
+    image: prom/prometheus:v2.45.0
+    container_name: swarm-arena-prometheus
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    networks:
+      - swarm-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Grafana for visualization
+  grafana:
+    image: grafana/grafana:10.0.0
+    container_name: swarm-arena-grafana
+    restart: unless-stopped
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    depends_on:
+      - prometheus
+    networks:
+      - swarm-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Log aggregation with Fluentd
+  fluentd:
+    image: fluent/fluentd:v1.16-debian-1
+    container_name: swarm-arena-fluentd
+    restart: unless-stopped
+    volumes:
+      - ./logging/fluentd.conf:/fluentd/etc/fluent.conf:ro
+      - swarm-logs:/var/log/swarm-arena:ro
+      - fluentd-data:/var/log/fluentd
+    ports:
+      - "24224:24224"
+    networks:
+      - swarm-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:24220/api/plugins.json"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  swarm-data:
+    driver: local
+  swarm-logs:
+    driver: local
+  redis-data:
+    driver: local
+  ray-data:
+    driver: local
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+  fluentd-data:
+    driver: local
+
+networks:
+  swarm-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
