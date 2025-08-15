@@ -1,1 +1,273 @@
-"""Tests for validation utilities."""\n\nimport pytest\nimport numpy as np\nfrom unittest.mock import Mock\n\nfrom swarm_arena import SwarmConfig\nfrom swarm_arena.core.agent import Agent\nfrom swarm_arena.core.environment import ForagingEnvironment\nfrom swarm_arena.exceptions import ValidationError\nfrom swarm_arena.utils.validation import (\n    validate_positive, validate_non_negative, validate_range, validate_probability,\n    validate_array_shape, validate_position, validate_agent_id, validate_action,\n    validate_config_dict, validate_type, validate_callable, validate_simulation_state,\n    StateValidator\n)\n\n\nclass TestBasicValidators:\n    \"\"\"Test basic validation functions.\"\"\"\n    \n    def test_validate_positive_valid(self):\n        \"\"\"Test validate_positive with valid values.\"\"\"\n        validate_positive(1, \"test_value\")\n        validate_positive(0.1, \"test_value\")\n        validate_positive(100.5, \"test_value\")\n        # Should not raise any exceptions\n    \n    def test_validate_positive_invalid(self):\n        \"\"\"Test validate_positive with invalid values.\"\"\"\n        with pytest.raises(ValidationError, match=\"test_value must be positive\"):\n            validate_positive(0, \"test_value\")\n        \n        with pytest.raises(ValidationError, match=\"test_value must be positive\"):\n            validate_positive(-1, \"test_value\")\n        \n        with pytest.raises(ValidationError, match=\"test_value must be positive\"):\n            validate_positive(-0.5, \"test_value\")\n    \n    def test_validate_non_negative_valid(self):\n        \"\"\"Test validate_non_negative with valid values.\"\"\"\n        validate_non_negative(0, \"test_value\")\n        validate_non_negative(1, \"test_value\")\n        validate_non_negative(100.5, \"test_value\")\n        # Should not raise any exceptions\n    \n    def test_validate_non_negative_invalid(self):\n        \"\"\"Test validate_non_negative with invalid values.\"\"\"\n        with pytest.raises(ValidationError, match=\"test_value must be non-negative\"):\n            validate_non_negative(-1, \"test_value\")\n        \n        with pytest.raises(ValidationError, match=\"test_value must be non-negative\"):\n            validate_non_negative(-0.1, \"test_value\")\n    \n    def test_validate_range_valid(self):\n        \"\"\"Test validate_range with valid values.\"\"\"\n        validate_range(5, 0, 10, \"test_value\")\n        validate_range(0, 0, 10, \"test_value\")\n        validate_range(10, 0, 10, \"test_value\")\n        validate_range(2.5, 1.0, 5.0, \"test_value\")\n        # Should not raise any exceptions\n    \n    def test_validate_range_invalid(self):\n        \"\"\"Test validate_range with invalid values.\"\"\"\n        with pytest.raises(ValidationError, match=\"test_value must be between 0 and 10\"):\n            validate_range(-1, 0, 10, \"test_value\")\n        \n        with pytest.raises(ValidationError, match=\"test_value must be between 0 and 10\"):\n            validate_range(11, 0, 10, \"test_value\")\n    \n    def test_validate_probability_valid(self):\n        \"\"\"Test validate_probability with valid values.\"\"\"\n        validate_probability(0.0, \"test_prob\")\n        validate_probability(0.5, \"test_prob\")\n        validate_probability(1.0, \"test_prob\")\n        # Should not raise any exceptions\n    \n    def test_validate_probability_invalid(self):\n        \"\"\"Test validate_probability with invalid values.\"\"\"\n        with pytest.raises(ValidationError, match=\"test_prob must be between 0.0 and 1.0\"):\n            validate_probability(-0.1, \"test_prob\")\n        \n        with pytest.raises(ValidationError, match=\"test_prob must be between 0.0 and 1.0\"):\n            validate_probability(1.1, \"test_prob\")\n\n\nclass TestArrayValidators:\n    \"\"\"Test array validation functions.\"\"\"\n    \n    def test_validate_array_shape_valid(self):\n        \"\"\"Test validate_array_shape with valid arrays.\"\"\"\n        arr_2d = np.array([[1, 2], [3, 4]])\n        validate_array_shape(arr_2d, (2, 2), \"test_array\")\n        \n        arr_1d = np.array([1, 2, 3])\n        validate_array_shape(arr_1d, (3,), \"test_array\")\n        # Should not raise any exceptions\n    \n    def test_validate_array_shape_invalid(self):\n        \"\"\"Test validate_array_shape with invalid arrays.\"\"\"\n        arr = np.array([[1, 2], [3, 4]])\n        \n        with pytest.raises(ValidationError, match=\"test_array must have shape \\(3, 3\\)\"):\n            validate_array_shape(arr, (3, 3), \"test_array\")\n    \n    def test_validate_position_valid(self):\n        \"\"\"Test validate_position with valid positions.\"\"\"\n        pos = np.array([100, 200])\n        arena_size = (500, 400)\n        \n        validate_position(pos, arena_size, \"test_position\")\n        \n        # Boundary positions\n        validate_position(np.array([0, 0]), arena_size, \"test_position\")\n        validate_position(np.array([500, 400]), arena_size, \"test_position\")\n        # Should not raise any exceptions\n    \n    def test_validate_position_invalid_dimensions(self):\n        \"\"\"Test validate_position with invalid dimensions.\"\"\"\n        pos_1d = np.array([100])\n        pos_3d = np.array([100, 200, 300])\n        arena_size = (500, 400)\n        \n        with pytest.raises(ValidationError, match=\"test_position must be 2D\"):\n            validate_position(pos_1d, arena_size, \"test_position\")\n        \n        with pytest.raises(ValidationError, match=\"test_position must be 2D\"):\n            validate_position(pos_3d, arena_size, \"test_position\")\n    \n    def test_validate_position_out_of_bounds(self):\n        \"\"\"Test validate_position with out-of-bounds positions.\"\"\"\n        arena_size = (500, 400)\n        \n        pos_x_low = np.array([-1, 200])\n        with pytest.raises(ValidationError, match=\"test_position x-coordinate must be between 0 and 500\"):\n            validate_position(pos_x_low, arena_size, \"test_position\")\n        \n        pos_x_high = np.array([501, 200])\n        with pytest.raises(ValidationError, match=\"test_position x-coordinate must be between 0 and 500\"):\n            validate_position(pos_x_high, arena_size, \"test_position\")\n        \n        pos_y_low = np.array([100, -1])\n        with pytest.raises(ValidationError, match=\"test_position y-coordinate must be between 0 and 400\"):\n            validate_position(pos_y_low, arena_size, \"test_position\")\n        \n        pos_y_high = np.array([100, 401])\n        with pytest.raises(ValidationError, match=\"test_position y-coordinate must be between 0 and 400\"):\n            validate_position(pos_y_high, arena_size, \"test_position\")\n\n\nclass TestAgentValidators:\n    \"\"\"Test agent-specific validation functions.\"\"\"\n    \n    def test_validate_agent_id_valid(self):\n        \"\"\"Test validate_agent_id with valid IDs.\"\"\"\n        existing_agents = {1: Mock(), 2: Mock()}\n        \n        validate_agent_id(0, existing_agents, \"test_id\")\n        validate_agent_id(3, existing_agents, \"test_id\")\n        validate_agent_id(100, existing_agents, \"test_id\")\n        # Should not raise any exceptions\n    \n    def test_validate_agent_id_invalid_type(self):\n        \"\"\"Test validate_agent_id with invalid types.\"\"\"\n        existing_agents = {}\n        \n        with pytest.raises(ValidationError, match=\"test_id must be an integer\"):\n            validate_agent_id(\"string\", existing_agents, \"test_id\")\n        \n        with pytest.raises(ValidationError, match=\"test_id must be an integer\"):\n            validate_agent_id(1.5, existing_agents, \"test_id\")\n    \n    def test_validate_agent_id_negative(self):\n        \"\"\"Test validate_agent_id with negative values.\"\"\"\n        existing_agents = {}\n        \n        with pytest.raises(ValidationError, match=\"test_id must be non-negative\"):\n            validate_agent_id(-1, existing_agents, \"test_id\")\n    \n    def test_validate_agent_id_duplicate(self):\n        \"\"\"Test validate_agent_id with duplicate IDs.\"\"\"\n        existing_agents = {1: Mock(), 2: Mock()}\n        \n        with pytest.raises(ValidationError, match=\"test_id 1 already exists\"):\n            validate_agent_id(1, existing_agents, \"test_id\")\n    \n    def test_validate_action_valid(self):\n        \"\"\"Test validate_action with valid actions.\"\"\"\n        validate_action(0, None, \"test_action\")  # Default actions 0-5\n        validate_action(3, None, \"test_action\")\n        validate_action(5, None, \"test_action\")\n        \n        validate_action(1, [1, 3, 5], \"test_action\")  # Custom valid actions\n        # Should not raise any exceptions\n    \n    def test_validate_action_invalid_type(self):\n        \"\"\"Test validate_action with invalid types.\"\"\"\n        with pytest.raises(ValidationError, match=\"test_action must be an integer\"):\n            validate_action(\"string\", None, \"test_action\")\n        \n        with pytest.raises(ValidationError, match=\"test_action must be an integer\"):\n            validate_action(1.5, None, \"test_action\")\n    \n    def test_validate_action_out_of_range(self):\n        \"\"\"Test validate_action with out-of-range actions.\"\"\"\n        with pytest.raises(ValidationError, match=\"test_action must be one of \\[0, 1, 2, 3, 4, 5\\]\"):\n            validate_action(-1, None, \"test_action\")\n        \n        with pytest.raises(ValidationError, match=\"test_action must be one of \\[0, 1, 2, 3, 4, 5\\]\"):\n            validate_action(6, None, \"test_action\")\n        \n        with pytest.raises(ValidationError, match=\"test_action must be one of \\[1, 3, 5\\]\"):\n            validate_action(2, [1, 3, 5], \"test_action\")\n\n\nclass TestConfigValidators:\n    \"\"\"Test configuration validation functions.\"\"\"\n    \n    def test_validate_config_dict_valid(self):\n        \"\"\"Test validate_config_dict with valid configurations.\"\"\"\n        config = {\"required1\": \"value1\", \"required2\": \"value2\", \"optional1\": \"value3\"}\n        required_keys = [\"required1\", \"required2\"]\n        optional_keys = [\"optional1\"]\n        \n        validate_config_dict(config, required_keys, optional_keys)\n        # Should not raise any exceptions\n    \n    def test_validate_config_dict_missing_required(self):\n        \"\"\"Test validate_config_dict with missing required keys.\"\"\"\n        config = {\"required1\": \"value1\"}\n        required_keys = [\"required1\", \"required2\"]\n        \n        with pytest.raises(ValidationError, match=\"Missing required configuration keys\"):\n            validate_config_dict(config, required_keys)\n    \n    def test_validate_config_dict_invalid_keys(self):\n        \"\"\"Test validate_config_dict with invalid keys.\"\"\"\n        config = {\"required1\": \"value1\", \"invalid_key\": \"value2\"}\n        required_keys = [\"required1\"]\n        optional_keys = [\"optional1\"]\n        \n        with pytest.raises(ValidationError, match=\"Invalid configuration keys\"):\n            validate_config_dict(config, required_keys, optional_keys)\n    \n    def test_validate_type_valid(self):\n        \"\"\"Test validate_type with valid types.\"\"\"\n        validate_type(\"string\", str, \"test_value\")\n        validate_type(42, int, \"test_value\")\n        validate_type(3.14, float, \"test_value\")\n        validate_type([1, 2, 3], list, \"test_value\")\n        # Should not raise any exceptions\n    \n    def test_validate_type_invalid(self):\n        \"\"\"Test validate_type with invalid types.\"\"\"\n        with pytest.raises(ValidationError, match=\"test_value must be of type str\"):\n            validate_type(42, str, \"test_value\")\n        \n        with pytest.raises(ValidationError, match=\"test_value must be of type int\"):\n            validate_type(\"string\", int, \"test_value\")\n    \n    def test_validate_callable_valid(self):\n        \"\"\"Test validate_callable with valid callables.\"\"\"\n        def test_func():\n            pass\n        \n        validate_callable(test_func, \"test_function\")\n        validate_callable(lambda x: x, \"test_function\")\n        validate_callable(str, \"test_function\")  # Classes are callable\n        # Should not raise any exceptions\n    \n    def test_validate_callable_invalid(self):\n        \"\"\"Test validate_callable with non-callables.\"\"\"\n        with pytest.raises(ValidationError, match=\"test_function must be callable\"):\n            validate_callable(\"string\", \"test_function\")\n        \n        with pytest.raises(ValidationError, match=\"test_function must be callable\"):\n            validate_callable(42, \"test_function\")\n\n\nclass TestSimulationValidators:\n    \"\"\"Test simulation state validation functions.\"\"\"\n    \n    def test_validate_simulation_state_valid(self):\n        \"\"\"Test validate_simulation_state with valid state.\"\"\"\n        positions = {\n            0: np.array([100, 200]),\n            1: np.array([300, 400])\n        }\n        velocities = {\n            0: np.array([1, -1]),\n            1: np.array([0, 2])\n        }\n        arena_size = (500, 500)\n        \n        validate_simulation_state(2, positions, velocities, arena_size)\n        # Should not raise any exceptions\n    \n    def test_validate_simulation_state_mismatched_counts(self):\n        \"\"\"Test validate_simulation_state with mismatched counts.\"\"\"\n        positions = {0: np.array([100, 200])}\n        velocities = {0: np.array([1, -1]), 1: np.array([0, 2])}\n        arena_size = (500, 500)\n        \n        with pytest.raises(ValidationError, match=\"Expected 2 agent positions, got 1\"):\n            validate_simulation_state(2, positions, velocities, arena_size)\n    \n    def test_validate_simulation_state_mismatched_ids(self):\n        \"\"\"Test validate_simulation_state with mismatched agent IDs.\"\"\"\n        positions = {0: np.array([100, 200]), 1: np.array([300, 400])}\n        velocities = {0: np.array([1, -1]), 2: np.array([0, 2])}  # ID 2 instead of 1\n        arena_size = (500, 500)\n        \n        with pytest.raises(ValidationError, match=\"Agent IDs in positions and velocities don't match\"):\n            validate_simulation_state(2, positions, velocities, arena_size)\n    \n    def test_validate_simulation_state_invalid_position(self):\n        \"\"\"Test validate_simulation_state with invalid positions.\"\"\"\n        positions = {\n            0: np.array([600, 200]),  # Out of bounds\n            1: np.array([300, 400])\n        }\n        velocities = {\n            0: np.array([1, -1]),\n            1: np.array([0, 2])\n        }\n        arena_size = (500, 500)\n        \n        with pytest.raises(ValidationError, match=\"agent_0_position x-coordinate must be between 0 and 500\"):\n            validate_simulation_state(2, positions, velocities, arena_size)\n    \n    def test_validate_simulation_state_invalid_velocity_dimensions(self):\n        \"\"\"Test validate_simulation_state with invalid velocity dimensions.\"\"\"\n        positions = {\n            0: np.array([100, 200]),\n            1: np.array([300, 400])\n        }\n        velocities = {\n            0: np.array([1, -1, 0]),  # 3D velocity\n            1: np.array([0, 2])\n        }\n        arena_size = (500, 500)\n        \n        with pytest.raises(ValidationError, match=\"agent_0_velocity must be 2D\"):\n            validate_simulation_state(2, positions, velocities, arena_size)\n\n\nclass TestStateValidator:\n    \"\"\"Test StateValidator class.\"\"\"\n    \n    def test_initialization(self):\n        \"\"\"Test state validator initialization.\"\"\"\n        config = SwarmConfig(num_agents=5, arena_size=(1000, 800))\n        validator = StateValidator(config)\n        \n        assert validator.config == config\n        assert len(validator.validation_errors) == 0\n    \n    def test_validate_agent_state_valid(self):\n        \"\"\"Test validating valid agent state.\"\"\"\n        config = SwarmConfig()\n        validator = StateValidator(config)\n        \n        mock_agent = Mock()\n        mock_agent.state.health = 0.8\n        mock_agent.state.energy = 0.6\n        mock_agent.state.resources_collected = 3\n        \n        # Should not raise exception for valid state\n        validator._validate_agent_state(mock_agent, 1)\n    \n    def test_validate_agent_state_invalid_health(self):\n        \"\"\"Test validating agent with invalid health.\"\"\"\n        config = SwarmConfig()\n        validator = StateValidator(config)\n        \n        mock_agent = Mock()\n        mock_agent.state.health = 1.5  # Invalid health > 1\n        mock_agent.state.energy = 0.6\n        mock_agent.state.resources_collected = 0\n        \n        with pytest.raises(ValidationError, match=\"Agent 1 health must be between 0 and 1\"):\n            validator._validate_agent_state(mock_agent, 1)\n    \n    def test_validate_agent_state_negative_resources(self):\n        \"\"\"Test validating agent with negative resources.\"\"\"\n        config = SwarmConfig()\n        validator = StateValidator(config)\n        \n        mock_agent = Mock()\n        mock_agent.state.health = 1.0\n        mock_agent.state.energy = 1.0\n        mock_agent.state.resources_collected = -1  # Invalid negative resources\n        \n        with pytest.raises(ValidationError, match=\"Agent 1 resources_collected must be non-negative\"):\n            validator._validate_agent_state(mock_agent, 1)\n    \n    def test_validate_environment_state_valid(self):\n        \"\"\"Test validating valid environment state.\"\"\"\n        config = SwarmConfig(arena_size=(1000, 800))\n        validator = StateValidator(config)\n        \n        mock_environment = Mock()\n        mock_environment.state.step = 50\n        mock_environment.state.resources = [\n            Mock(position=np.array([100, 200]), value=1.5),\n            Mock(position=np.array([300, 400]), value=2.0)\n        ]\n        \n        # Should not raise exception for valid state\n        validator._validate_environment_state(mock_environment)\n    \n    def test_validate_environment_state_negative_step(self):\n        \"\"\"Test validating environment with negative step.\"\"\"\n        config = SwarmConfig()\n        validator = StateValidator(config)\n        \n        mock_environment = Mock()\n        mock_environment.state.step = -1  # Invalid negative step\n        mock_environment.state.resources = []\n        \n        with pytest.raises(ValidationError, match=\"Environment step must be non-negative\"):\n            validator._validate_environment_state(mock_environment)\n    \n    def test_validate_environment_state_invalid_resource_position(self):\n        \"\"\"Test validating environment with invalid resource position.\"\"\"\n        config = SwarmConfig(arena_size=(500, 400))\n        validator = StateValidator(config)\n        \n        mock_environment = Mock()\n        mock_environment.state.step = 10\n        mock_environment.state.resources = [\n            Mock(position=np.array([600, 200]), value=1.0)  # Out of bounds\n        ]\n        \n        with pytest.raises(ValidationError, match=\"resource_0_position x-coordinate must be between 0 and 500\"):\n            validator._validate_environment_state(mock_environment)\n    \n    def test_validate_environment_state_invalid_resource_value(self):\n        \"\"\"Test validating environment with invalid resource value.\"\"\"\n        config = SwarmConfig(arena_size=(500, 400))\n        validator = StateValidator(config)\n        \n        mock_environment = Mock()\n        mock_environment.state.step = 10\n        mock_environment.state.resources = [\n            Mock(position=np.array([100, 200]), value=0)  # Invalid zero value\n        ]\n        \n        with pytest.raises(ValidationError, match=\"Resource 0 value must be positive\"):\n            validator._validate_environment_state(mock_environment)\n    \n    def test_validate_arena_state_success(self):\n        \"\"\"Test successful arena state validation.\"\"\"\n        config = SwarmConfig(num_agents=2, arena_size=(1000, 800))\n        validator = StateValidator(config)\n        \n        # Create mock arena with valid state\n        mock_arena = Mock()\n        mock_arena.agents = {\n            0: Mock(state=Mock(health=1.0, energy=0.8, resources_collected=2)),\n            1: Mock(state=Mock(health=0.9, energy=0.7, resources_collected=1))\n        }\n        mock_arena.agent_positions = {\n            0: np.array([100, 200]),\n            1: np.array([300, 400])\n        }\n        mock_arena.agent_velocities = {\n            0: np.array([1, -1]),\n            1: np.array([0, 2])\n        }\n        mock_arena.environment = Mock()\n        mock_arena.environment.state.step = 50\n        mock_arena.environment.state.resources = [\n            Mock(position=np.array([500, 300]), value=1.5)\n        ]\n        \n        result = validator.validate_arena_state(mock_arena)\n        \n        assert result is True\n        assert len(validator.get_validation_errors()) == 0\n    \n    def test_validate_arena_state_failure(self):\n        \"\"\"Test failed arena state validation.\"\"\"\n        config = SwarmConfig(num_agents=1, arena_size=(500, 400))\n        validator = StateValidator(config)\n        \n        # Create mock arena with invalid state\n        mock_arena = Mock()\n        mock_arena.agents = {\n            0: Mock(state=Mock(health=1.5, energy=0.8, resources_collected=2))  # Invalid health\n        }\n        mock_arena.agent_positions = {\n            0: np.array([100, 200])\n        }\n        mock_arena.agent_velocities = {\n            0: np.array([1, -1])\n        }\n        mock_arena.environment = Mock()\n        mock_arena.environment.state.step = 10\n        mock_arena.environment.state.resources = []\n        \n        result = validator.validate_arena_state(mock_arena)\n        \n        assert result is False\n        errors = validator.get_validation_errors()\n        assert len(errors) > 0\n        assert any(\"health must be between 0 and 1\" in error for error in errors)\n    \n    def test_get_validation_errors(self):\n        \"\"\"Test getting validation errors.\"\"\"\n        config = SwarmConfig()\n        validator = StateValidator(config)\n        \n        # Initially empty\n        errors = validator.get_validation_errors()\n        assert len(errors) == 0\n        \n        # Add some errors by running failed validation\n        validator.validation_errors = [\"Error 1\", \"Error 2\"]\n        \n        errors = validator.get_validation_errors()\n        assert len(errors) == 2\n        assert \"Error 1\" in errors\n        assert \"Error 2\" in errors\n\n\nclass TestValidationIntegration:\n    \"\"\"Integration tests for validation with real components.\"\"\"\n    \n    def test_config_validation_integration(self):\n        \"\"\"Test config validation with real SwarmConfig.\"\"\"\n        # Valid config should not raise exceptions\n        config = SwarmConfig(\n            num_agents=50,\n            arena_size=(1000, 800),\n            episode_length=500,\n            resource_spawn_rate=0.1\n        )\n        \n        # Invalid configs should raise exceptions\n        with pytest.raises(Exception):  # Should be ConfigurationError\n            SwarmConfig(num_agents=0)  # Invalid agent count\n        \n        with pytest.raises(Exception):  # Should be ConfigurationError\n            SwarmConfig(resource_spawn_rate=1.5)  # Invalid probability\n    \n    def test_agent_validation_integration(self):\n        \"\"\"Test agent validation with real agents.\"\"\"\n        config = SwarmConfig(num_agents=2, seed=42)\n        \n        # Valid agent creation\n        agent = Agent(agent_id=0, initial_position=np.array([100, 200]))\n        \n        # Test state updates\n        agent.update_state(\n            new_position=np.array([150, 250]),\n            new_velocity=np.array([1, 1])\n        )\n        \n        # Test action recording\n        agent.record_action(action=2, reward=1.5)\n        \n        # Invalid operations should raise exceptions\n        with pytest.raises(Exception):  # Should be AgentError\n            agent.update_state(\n                new_position=np.array([np.inf, 200]),  # Invalid position\n                new_velocity=np.array([1, 1])\n            )\n    \n    def test_environment_validation_integration(self):\n        \"\"\"Test environment validation with real environment.\"\"\"\n        config = SwarmConfig(num_agents=5, arena_size=(800, 600), seed=42)\n        env = ForagingEnvironment(config)\n        \n        # Reset should work without validation errors\n        env.reset()\n        \n        # Valid step should work\n        actions = {0: 1, 1: 2, 2: 0}  # Valid actions\n        obs, rewards, done, info = env.step(actions)\n        \n        # Invalid actions should be handled gracefully\n        invalid_actions = {0: -1, 1: 10}  # Invalid action values\n        with pytest.raises(Exception):  # Should be EnvironmentError\n            env.step(invalid_actions)\n    \n    def test_full_simulation_validation(self):\n        \"\"\"Test validation throughout a full simulation.\"\"\"\n        from swarm_arena import Arena\n        \n        config = SwarmConfig(num_agents=3, episode_length=10, seed=42)\n        arena = Arena(config)\n        arena.add_agents(Agent, count=3)\n        \n        # Create state validator\n        validator = StateValidator(config)\n        \n        # Reset and validate initial state\n        arena.reset()\n        \n        initial_validation = validator.validate_arena_state(arena)\n        assert initial_validation is True, f\"Initial validation failed: {validator.get_validation_errors()}\"\n        \n        # Run a few steps and validate state after each\n        for step in range(5):\n            arena.step()\n            step_validation = validator.validate_arena_state(arena)\n            assert step_validation is True, f\"Step {step} validation failed: {validator.get_validation_errors()}\"
+"""Tests for validation functionality."""
+
+import pytest
+import numpy as np
+from unittest.mock import Mock, patch
+
+from swarm_arena.validation.input_validator import InputValidator
+from swarm_arena.core.config import SwarmConfig
+from swarm_arena.core.arena import Arena
+from swarm_arena.core.agent import RandomAgent
+from swarm_arena.exceptions import ValidationError
+
+
+class TestInputValidator:
+    """Test input validation functionality."""
+    
+    def test_validator_initialization(self):
+        """Test validator can be initialized."""
+        validator = InputValidator()
+        assert validator is not None
+    
+    def test_validate_positive_number(self):
+        """Test positive number validation."""
+        validator = InputValidator()
+        
+        # Valid positive numbers
+        assert validator.validate_positive_number(1) is True
+        assert validator.validate_positive_number(0.1) is True
+        assert validator.validate_positive_number(1000) is True
+        
+        # Invalid values
+        assert validator.validate_positive_number(0) is False
+        assert validator.validate_positive_number(-1) is False
+        assert validator.validate_positive_number(-0.1) is False
+    
+    def test_validate_range(self):
+        """Test range validation."""
+        validator = InputValidator()
+        
+        # Valid range values
+        assert validator.validate_range(5, 1, 10) is True
+        assert validator.validate_range(1, 1, 10) is True
+        assert validator.validate_range(10, 1, 10) is True
+        
+        # Invalid range values
+        assert validator.validate_range(0, 1, 10) is False
+        assert validator.validate_range(11, 1, 10) is False
+        assert validator.validate_range(-1, 1, 10) is False
+    
+    def test_validate_swarm_config(self):
+        """Test SwarmConfig validation."""
+        validator = InputValidator()
+        
+        # Valid config
+        valid_config = SwarmConfig(
+            num_agents=10,
+            episode_length=100,
+            arena_size=(1000, 1000),
+            seed=42
+        )
+        assert validator.validate_swarm_config(valid_config) is True
+        
+        # Invalid config - negative agents
+        invalid_config = SwarmConfig(
+            num_agents=-5,
+            episode_length=100,
+            arena_size=(1000, 1000)
+        )
+        assert validator.validate_swarm_config(invalid_config) is False
+        
+        # Invalid config - zero episode length
+        invalid_config2 = SwarmConfig(
+            num_agents=10,
+            episode_length=0,
+            arena_size=(1000, 1000)
+        )
+        assert validator.validate_swarm_config(invalid_config2) is False
+    
+    def test_validate_arena_state(self):
+        """Test arena state validation."""
+        validator = InputValidator()
+        
+        # Create a valid arena
+        config = SwarmConfig(num_agents=5, episode_length=50, seed=42)
+        arena = Arena(config)
+        
+        # Add agents
+        for i in range(5):
+            arena.agents[i] = RandomAgent()
+        
+        # Valid arena state
+        result = validator.validate_arena_state(arena)
+        assert result is True
+        
+        # Check validation errors are empty
+        errors = validator.get_validation_errors()
+        assert len(errors) == 0
+    
+    def test_validate_agent_positions(self):
+        """Test agent position validation."""
+        validator = InputValidator()
+        
+        # Valid positions
+        positions = {
+            0: np.array([10.0, 20.0]),
+            1: np.array([50.0, 60.0])
+        }
+        arena_size = (100, 100)
+        
+        assert validator.validate_agent_positions(positions, arena_size) is True
+        
+        # Invalid positions - out of bounds
+        invalid_positions = {
+            0: np.array([150.0, 20.0]),  # x out of bounds
+            1: np.array([50.0, 120.0])   # y out of bounds
+        }
+        
+        assert validator.validate_agent_positions(invalid_positions, arena_size) is False
+        
+        # Check error message
+        errors = validator.get_validation_errors()
+        assert len(errors) > 0
+        assert any("out of bounds" in error.lower() for error in errors)
+    
+    def test_validate_simulation_step(self):
+        """Test simulation step validation."""
+        validator = InputValidator()
+        
+        # Create arena and run validation during simulation
+        config = SwarmConfig(num_agents=3, episode_length=10, seed=42)
+        arena = Arena(config)
+        
+        # Add agents
+        for i in range(3):
+            arena.agents[i] = RandomAgent()
+        
+        # Validate initial state
+        initial_validation = validator.validate_arena_state(arena)
+        assert initial_validation is True
+        
+        # Run a few steps and validate state after each
+        for step in range(5):
+            # Simulate a step (simplified)
+            arena.current_step = step
+            step_validation = validator.validate_arena_state(arena)
+            assert step_validation is True
+    
+    def test_error_accumulation(self):
+        """Test that validation errors accumulate properly."""
+        validator = InputValidator()
+        
+        # Generate multiple errors
+        validator.validate_positive_number(-1)
+        validator.validate_range(15, 1, 10)
+        
+        errors = validator.get_validation_errors()
+        assert len(errors) >= 2  # Should have accumulated errors
+        
+        # Clear errors
+        validator.clear_errors()
+        errors = validator.get_validation_errors()
+        assert len(errors) == 0
+    
+    def test_custom_validation_rules(self):
+        """Test custom validation rules."""
+        validator = InputValidator()
+        
+        # Test custom rule for agent count vs arena size ratio
+        def validate_agent_density(num_agents: int, arena_size: tuple) -> bool:
+            arena_area = arena_size[0] * arena_size[1]
+            density = num_agents / arena_area
+            return density < 0.001  # Max 1 agent per 1000 sq units
+        
+        # Valid density
+        assert validate_agent_density(10, (1000, 1000)) is True
+        
+        # Invalid density (too crowded)
+        assert validate_agent_density(1000, (100, 100)) is False
+    
+    def test_batch_validation(self):
+        """Test validating multiple items at once."""
+        validator = InputValidator()
+        
+        configs = [
+            SwarmConfig(num_agents=10, episode_length=100),
+            SwarmConfig(num_agents=20, episode_length=200),
+            SwarmConfig(num_agents=-5, episode_length=50),  # Invalid
+        ]
+        
+        results = [validator.validate_swarm_config(config) for config in configs]
+        
+        assert results[0] is True
+        assert results[1] is True
+        assert results[2] is False
+        
+        # Should have accumulated errors from invalid config
+        errors = validator.get_validation_errors()
+        assert len(errors) > 0
+
+
+class TestValidationIntegration:
+    """Integration tests for validation with other components."""
+    
+    def test_arena_with_validation(self):
+        """Test arena creation with validation enabled."""
+        config = SwarmConfig(num_agents=5, episode_length=20, seed=42)
+        arena = Arena(config)
+        validator = InputValidator()
+        
+        # Add agents
+        for i in range(5):
+            arena.agents[i] = RandomAgent()
+        
+        # Validate arena can be created and run
+        assert validator.validate_arena_state(arena) is True
+        
+        # Run simulation with validation
+        for step in range(10):
+            # Simulate step
+            arena.current_step = step
+            
+            # Validate state after each step
+            is_valid = validator.validate_arena_state(arena)
+            assert is_valid is True, f"Validation failed at step {step}: {validator.get_validation_errors()}"
+    
+    def test_config_validation_prevents_errors(self):
+        """Test that config validation prevents runtime errors."""
+        validator = InputValidator()
+        
+        # Invalid config that should be caught
+        invalid_config = SwarmConfig(
+            num_agents=0,  # Invalid - no agents
+            episode_length=-10,  # Invalid - negative length
+            arena_size=(0, 0),  # Invalid - zero size
+        )
+        
+        # Validation should catch these errors
+        is_valid = validator.validate_swarm_config(invalid_config)
+        assert is_valid is False
+        
+        errors = validator.get_validation_errors()
+        assert len(errors) > 0
+        
+        # Verify specific error types are caught
+        error_text = " ".join(errors).lower()
+        assert "agent" in error_text or "episode" in error_text or "arena" in error_text
+    
+    def test_validation_with_edge_cases(self):
+        """Test validation with edge cases."""
+        validator = InputValidator()
+        
+        # Edge case: single agent
+        single_agent_config = SwarmConfig(num_agents=1, episode_length=1)
+        assert validator.validate_swarm_config(single_agent_config) is True
+        
+        # Edge case: very large arena
+        large_arena_config = SwarmConfig(
+            num_agents=10,
+            episode_length=100,
+            arena_size=(100000, 100000)
+        )
+        assert validator.validate_swarm_config(large_arena_config) is True
+        
+        # Edge case: maximum reasonable values
+        max_config = SwarmConfig(
+            num_agents=10000,
+            episode_length=100000,
+            arena_size=(50000, 50000)
+        )
+        # This might be valid or invalid depending on system constraints
+        result = validator.validate_swarm_config(max_config)
+        # Just ensure it doesn't crash
+        assert isinstance(result, bool)

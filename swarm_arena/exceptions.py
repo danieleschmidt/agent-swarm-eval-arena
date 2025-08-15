@@ -49,3 +49,28 @@ class NetworkError(SwarmArenaError):
 class RayError(SwarmArenaError):
     """Raised when there's an error with Ray distributed computing."""
     pass
+
+
+class CircuitBreakerError(SwarmArenaError):
+    """Raised when circuit breaker is open."""
+    pass
+
+
+class SystemError(SwarmArenaError):
+    """Raised when there's a system-level error."""
+    pass
+
+
+class SecurityError(SwarmArenaError):
+    """Raised when there's a security-related error."""
+    pass
+
+
+class AuthenticationError(SecurityError):
+    """Raised when authentication fails."""
+    pass
+
+
+class AuthorizationError(SecurityError):
+    """Raised when authorization fails."""
+    pass

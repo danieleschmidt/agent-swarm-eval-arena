@@ -1,0 +1,26 @@
+{
+  "failure_patterns": {
+    "system_initialization_TypeError": {
+      "pattern_id": "system_initialization_TypeError",
+      "description": "TypeError in system_initialization",
+      "healing_strategy": "restart",
+      "confidence": 0.1,
+      "occurrence_count": 1,
+      "success_rate": 0.0
+    }
+  },
+  "strategy_success_rates": {
+    "restart": 1.0
+  },
+  "system_metrics": {
+    "total_failures": 1,
+    "successful_healings": 1,
+    "failed_healings": 0,
+    "automatic_recoveries": 0,
+    "mttr": 0.0,
+    "mtbf": 0.0,
+    "healing_success_rate": 1.0,
+    "active_components": 1,
+    "memory_patterns": 1,
+    "strategy_success_rates": {
+      
