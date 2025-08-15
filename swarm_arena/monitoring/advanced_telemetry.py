@@ -1,688 +1,379 @@
-"""Advanced telemetry and monitoring system."""
+"""
+Advanced Telemetry Collection System
+Real-time monitoring and metrics collection with alerting capabilities.
+"""
 
 import time
-import threading
-import queue
+import asyncio
 import json
-import statistics
-from typing import Dict, List, Any, Optional, Callable, Union
-from dataclasses import dataclass, field, asdict
-from collections import defaultdict, deque
-from enum import Enum
 import logging
-import psutil
-import numpy as np
+from typing import Dict, Any, List, Optional, Callable
+from dataclasses import dataclass, field
+from collections import defaultdict, deque
+from datetime import datetime
+import threading
 
-
-class MetricType(Enum):
-    """Types of metrics."""
-    COUNTER = "counter"
-    GAUGE = "gauge"
-    HISTOGRAM = "histogram"
-    TIMER = "timer"
-    RATE = "rate"
+from ..utils.logging import get_logger
 
 
 @dataclass
-class Metric:
-    """A single metric measurement."""
-    name: str
-    value: Union[int, float]
-    metric_type: MetricType
-    timestamp: float = field(default_factory=time.time)
+class MetricPoint:
+    """Single metric data point."""
+    timestamp: float
+    value: float
     tags: Dict[str, str] = field(default_factory=dict)
-    unit: Optional[str] = None
 
 
 @dataclass
 class Alert:
-    """Alert definition and state."""
+    """Alert configuration and state."""
     name: str
-    condition: Callable[[float], bool]
-    message: str
-    severity: str = "warning"
-    cooldown: float = 300.0  # 5 minutes
+    metric: str
+    threshold: float
+    condition: str  # "greater_than", "less_than", "equals"
+    enabled: bool = True
+    triggered: bool = False
+    trigger_count: int = 0
     last_triggered: Optional[float] = None
-    is_active: bool = False
+    callback: Optional[Callable] = None
 
 
-class MetricsCollector:
-    """Collects and aggregates metrics."""
+class AdvancedTelemetryCollector:
+    """Advanced telemetry system with real-time monitoring and alerting."""
     
-    def __init__(self, max_history: int = 10000):
-        self.max_history = max_history
-        self.metrics: Dict[str, deque] = defaultdict(lambda: deque(maxlen=max_history))
-        self.counters: Dict[str, float] = defaultdict(float)
-        self.gauges: Dict[str, float] = {}
-        self.histograms: Dict[str, List[float]] = defaultdict(list)
-        self.timers: Dict[str, List[float]] = defaultdict(list)
+    def __init__(self, retention_hours: int = 24):
+        self.retention_hours = retention_hours
+        self.retention_seconds = retention_hours * 3600
+        self.logger = get_logger(__name__)
         
-        self.lock = threading.Lock()
+        # Metric storage
+        self.metrics: Dict[str, deque] = defaultdict(lambda: deque(maxlen=10000))
+        self.aggregated_metrics: Dict[str, Dict[str, float]] = defaultdict(dict)
         
-        # Alerts
+        # Alerting
         self.alerts: Dict[str, Alert] = {}
-        self.alert_handlers: List[Callable[[Alert, float], None]] = []
+        self.alert_history: deque = deque(maxlen=1000)
         
-        # Auto-collection of system metrics
-        self.system_metrics_enabled = True
-        self.system_metrics_interval = 30.0  # seconds
-        self._start_system_metrics_collection()
+        # System state
+        self.running = False
+        self.collection_thread = None
+        self.start_time = time.time()
+        
+        # Performance tracking
+        self.performance_metrics = {
+            'total_metrics_collected': 0,
+            'alerts_triggered': 0,
+            'collection_errors': 0
+        }
     
-    def record_counter(self, name: str, value: float = 1.0, tags: Optional[Dict[str, str]] = None) -> None:
-        """Record a counter metric (cumulative).
-        
-        Args:
-            name: Metric name
-            value: Value to add
-            tags: Additional tags
-        """
-        with self.lock:
-            self.counters[name] += value
-            
-            metric = Metric(
-                name=name,
-                value=self.counters[name],
-                metric_type=MetricType.COUNTER,
-                tags=tags or {}
-            )
-            
-            self.metrics[name].append(metric)
+    async def start(self) -> None:
+        """Start telemetry collection."""
+        if not self.running:
+            self.running = True
+            self.collection_thread = threading.Thread(target=self._collection_loop, daemon=True)
+            self.collection_thread.start()
+            self.logger.info("Advanced telemetry collection started")
     
-    def record_gauge(self, name: str, value: float, tags: Optional[Dict[str, str]] = None) -> None:
-        """Record a gauge metric (instantaneous value).
-        
-        Args:
-            name: Metric name
-            value: Current value
-            tags: Additional tags
-        """
-        with self.lock:
-            self.gauges[name] = value
+    async def stop(self) -> None:
+        """Stop telemetry collection."""
+        if self.running:
+            self.running = False
+            if self.collection_thread:
+                self.collection_thread.join(timeout=5.0)
+            self.logger.info("Advanced telemetry collection stopped")
+    
+    def record_metric(self, name: str, value: float, tags: Optional[Dict[str, str]] = None) -> None:
+        """Record a metric value."""
+        try:
+            if tags is None:
+                tags = {}
             
-            metric = Metric(
-                name=name,
+            metric_point = MetricPoint(
+                timestamp=time.time(),
                 value=value,
-                metric_type=MetricType.GAUGE,
-                tags=tags or {}
+                tags=tags
             )
             
-            self.metrics[name].append(metric)
+            self.metrics[name].append(metric_point)
+            self.performance_metrics['total_metrics_collected'] += 1
+            
+            # Update aggregated metrics
+            self._update_aggregated_metrics(name, value)
             
             # Check alerts
             self._check_alerts(name, value)
-    
-    def record_histogram(self, name: str, value: float, tags: Optional[Dict[str, str]] = None) -> None:
-        """Record a histogram metric.
-        
-        Args:
-            name: Metric name
-            value: Value to record
-            tags: Additional tags
-        """
-        with self.lock:
-            self.histograms[name].append(value)
             
-            # Keep only recent values
-            if len(self.histograms[name]) > 1000:
-                self.histograms[name] = self.histograms[name][-500:]
-            
-            metric = Metric(
-                name=name,
-                value=value,
-                metric_type=MetricType.HISTOGRAM,
-                tags=tags or {}
-            )
-            
-            self.metrics[name].append(metric)
+        except Exception as e:
+            self.performance_metrics['collection_errors'] += 1
+            self.logger.error(f"Failed to record metric {name}: {e}")
     
-    def time_function(self, name: str, tags: Optional[Dict[str, str]] = None):
-        """Decorator to time function execution.
-        
-        Args:
-            name: Metric name
-            tags: Additional tags
-        """
-        def decorator(func):
-            def wrapper(*args, **kwargs):
-                start_time = time.time()
-                try:
-                    result = func(*args, **kwargs)
-                    return result
-                finally:
-                    duration = time.time() - start_time
-                    self.record_timer(name, duration, tags)
-            return wrapper
-        return decorator
+    async def record_arena_created(self, config: Any, response_time: float) -> None:
+        """Record arena creation metrics."""
+        self.record_metric("arena_creation_time", response_time, {"status": "success"})
+        self.record_metric("arena_agent_count", config.num_agents)
+        self.record_metric("arena_episodes", config.episode_length)
     
-    def record_timer(self, name: str, duration: float, tags: Optional[Dict[str, str]] = None) -> None:
-        """Record a timer metric.
+    async def record_simulation_completed(self, episodes: int, execution_time: float, results: Dict[str, Any]) -> None:
+        """Record simulation completion metrics."""
+        self.record_metric("simulation_execution_time", execution_time)
+        self.record_metric("simulation_episodes", episodes)
+        self.record_metric("simulation_error_rate", results.get('error_rate', 0.0))
         
-        Args:
-            name: Metric name
-            duration: Duration in seconds
-            tags: Additional tags
-        """
-        with self.lock:
-            self.timers[name].append(duration)
-            
-            # Keep only recent values
-            if len(self.timers[name]) > 1000:
-                self.timers[name] = self.timers[name][-500:]
-            
-            metric = Metric(
-                name=name,
-                value=duration,
-                metric_type=MetricType.TIMER,
-                tags=tags or {},
-                unit="seconds"
-            )
-            
-            self.metrics[name].append(metric)
+        if 'mean_episode_time' in results:
+            self.record_metric("episode_mean_time", results['mean_episode_time'])
     
-    def get_counter(self, name: str) -> float:
-        """Get current counter value."""
-        return self.counters.get(name, 0.0)
-    
-    def get_gauge(self, name: str) -> Optional[float]:
-        """Get current gauge value."""
-        return self.gauges.get(name)
-    
-    def get_histogram_stats(self, name: str) -> Dict[str, float]:
-        """Get histogram statistics.
+    async def record_system_alert(self, alerts: List[str], context: Dict[str, Any]) -> None:
+        """Record system alert event."""
+        self.record_metric("system_alerts", len(alerts))
         
-        Args:
-            name: Metric name
-            
-        Returns:
-            Dictionary with histogram statistics
-        """
-        if name not in self.histograms or not self.histograms[name]:
-            return {}
-        
-        values = self.histograms[name]
-        
-        return {
-            'count': len(values),
-            'min': min(values),
-            'max': max(values),
-            'mean': statistics.mean(values),
-            'median': statistics.median(values),
-            'p95': np.percentile(values, 95),
-            'p99': np.percentile(values, 99),
-            'std': statistics.stdev(values) if len(values) > 1 else 0
-        }
-    
-    def get_timer_stats(self, name: str) -> Dict[str, float]:
-        """Get timer statistics."""
-        if name not in self.timers or not self.timers[name]:
-            return {}
-        
-        values = self.timers[name]
-        
-        return {
-            'count': len(values),
-            'min': min(values),
-            'max': max(values),
-            'mean': statistics.mean(values),
-            'median': statistics.median(values),
-            'p95': np.percentile(values, 95),
-            'p99': np.percentile(values, 99),
-            'std': statistics.stdev(values) if len(values) > 1 else 0,
-            'total': sum(values)
-        }
-    
-    def get_rate(self, name: str, window_seconds: float = 60.0) -> float:
-        """Calculate rate of events per second.
-        
-        Args:
-            name: Metric name
-            window_seconds: Time window for rate calculation
-            
-        Returns:
-            Events per second
-        """
-        if name not in self.metrics:
-            return 0.0
-        
-        current_time = time.time()
-        cutoff_time = current_time - window_seconds
-        
-        # Count events in time window
-        count = 0
-        for metric in reversed(self.metrics[name]):
-            if metric.timestamp >= cutoff_time:
-                count += 1
-            else:
-                break
-        
-        return count / window_seconds
+        for key, value in context.items():
+            if isinstance(value, (int, float)):
+                self.record_metric(f"alert_context_{key}", value)
     
     def add_alert(self, alert: Alert) -> None:
-        """Add an alert condition.
-        
-        Args:
-            alert: Alert configuration
-        """
+        """Add alert configuration."""
         self.alerts[alert.name] = alert
+        self.logger.info(f"Alert added: {alert.name} on {alert.metric} {alert.condition} {alert.threshold}")
     
-    def add_alert_handler(self, handler: Callable[[Alert, float], None]) -> None:
-        """Add an alert handler function.
+    def remove_alert(self, name: str) -> None:
+        """Remove alert configuration."""
+        if name in self.alerts:
+            del self.alerts[name]
+            self.logger.info(f"Alert removed: {name}")
+    
+    def get_metric_history(self, name: str, duration_seconds: Optional[int] = None) -> List[MetricPoint]:
+        """Get metric history for specified duration."""
+        if name not in self.metrics:
+            return []
         
-        Args:
-            handler: Function to call when alert triggers
-        """
-        self.alert_handlers.append(handler)
+        metrics = list(self.metrics[name])
+        
+        if duration_seconds:
+            cutoff_time = time.time() - duration_seconds
+            metrics = [m for m in metrics if m.timestamp >= cutoff_time]
+        
+        return metrics
+    
+    def get_aggregated_metrics(self, name: str) -> Dict[str, float]:
+        """Get aggregated statistics for a metric."""
+        return self.aggregated_metrics.get(name, {})
+    
+    def get_all_metrics(self) -> Dict[str, Any]:
+        """Get all current metrics and statistics."""
+        current_time = time.time()
+        uptime = current_time - self.start_time
+        
+        # System metrics
+        system_metrics = {
+            'uptime_seconds': uptime,
+            'total_metrics': len(self.metrics),
+            'total_data_points': sum(len(points) for points in self.metrics.values()),
+            'collection_rate': self.performance_metrics['total_metrics_collected'] / max(uptime, 1),
+            'alert_count': len([a for a in self.alerts.values() if a.enabled]),
+            'active_alerts': len([a for a in self.alerts.values() if a.triggered])
+        }
+        
+        # Recent metric summaries
+        metric_summaries = {}
+        for name, points in self.metrics.items():
+            if points:
+                recent_points = [p for p in points if current_time - p.timestamp < 300]  # Last 5 minutes
+                if recent_points:
+                    values = [p.value for p in recent_points]
+                    metric_summaries[name] = {
+                        'count': len(values),
+                        'latest': values[-1],
+                        'min': min(values),
+                        'max': max(values),
+                        'avg': sum(values) / len(values)
+                    }
+        
+        return {
+            'system': system_metrics,
+            'performance': self.performance_metrics,
+            'metrics': metric_summaries,
+            'alerts': {name: {'triggered': alert.triggered, 'trigger_count': alert.trigger_count} 
+                      for name, alert in self.alerts.items()}
+        }
+    
+    def _collection_loop(self) -> None:
+        """Main collection loop for system metrics."""
+        while self.running:
+            try:
+                self._collect_system_metrics()
+                self._cleanup_old_metrics()
+                time.sleep(10.0)  # Collect every 10 seconds
+                
+            except Exception as e:
+                self.performance_metrics['collection_errors'] += 1
+                self.logger.error(f"Collection loop error: {e}")
+                time.sleep(1.0)
+    
+    def _collect_system_metrics(self) -> None:
+        """Collect system-level metrics."""
+        try:
+            import psutil
+            
+            # CPU and memory
+            self.record_metric("system_cpu_percent", psutil.cpu_percent())
+            
+            memory = psutil.virtual_memory()
+            self.record_metric("system_memory_percent", memory.percent)
+            self.record_metric("system_memory_available_mb", memory.available / 1024 / 1024)
+            
+            # Disk usage
+            disk = psutil.disk_usage('/')
+            self.record_metric("system_disk_percent", disk.percent)
+            
+            # Process metrics
+            process = psutil.Process()
+            self.record_metric("process_memory_mb", process.memory_info().rss / 1024 / 1024)
+            self.record_metric("process_cpu_percent", process.cpu_percent())
+            
+        except Exception as e:
+            self.logger.warning(f"Failed to collect system metrics: {e}")
+    
+    def _update_aggregated_metrics(self, name: str, value: float) -> None:
+        """Update aggregated statistics for a metric."""
+        try:
+            if name not in self.aggregated_metrics:
+                self.aggregated_metrics[name] = {
+                    'count': 0,
+                    'sum': 0.0,
+                    'min': float('inf'),
+                    'max': float('-inf'),
+                    'avg': 0.0
+                }
+            
+            stats = self.aggregated_metrics[name]
+            stats['count'] += 1
+            stats['sum'] += value
+            stats['min'] = min(stats['min'], value)
+            stats['max'] = max(stats['max'], value)
+            stats['avg'] = stats['sum'] / stats['count']
+            
+        except Exception as e:
+            self.logger.error(f"Failed to update aggregated metrics for {name}: {e}")
     
     def _check_alerts(self, metric_name: str, value: float) -> None:
-        """Check if any alerts should trigger."""
-        current_time = time.time()
-        
-        for alert in self.alerts.values():
-            # Skip if in cooldown
-            if (alert.last_triggered and 
-                current_time - alert.last_triggered < alert.cooldown):
-                continue
-            
-            # Check if condition is met
-            if alert.condition(value):
-                alert.last_triggered = current_time
-                alert.is_active = True
+        """Check if any alerts should be triggered."""
+        try:
+            for alert_name, alert in self.alerts.items():
+                if not alert.enabled or alert.metric != metric_name:
+                    continue
                 
-                # Trigger alert handlers
-                for handler in self.alert_handlers:
-                    try:
-                        handler(alert, value)
-                    except Exception as e:
-                        logging.error(f"Alert handler failed: {e}")
-            else:
-                alert.is_active = False
+                should_trigger = False
+                
+                if alert.condition == "greater_than" and value > alert.threshold:
+                    should_trigger = True
+                elif alert.condition == "less_than" and value < alert.threshold:
+                    should_trigger = True
+                elif alert.condition == "equals" and abs(value - alert.threshold) < 0.001:
+                    should_trigger = True
+                
+                if should_trigger and not alert.triggered:
+                    # Trigger alert
+                    alert.triggered = True
+                    alert.trigger_count += 1
+                    alert.last_triggered = time.time()
+                    
+                    self.performance_metrics['alerts_triggered'] += 1
+                    
+                    # Log alert
+                    self.logger.warning(f"Alert triggered: {alert_name} - {metric_name} = {value} {alert.condition} {alert.threshold}")
+                    
+                    # Record in history
+                    self.alert_history.append({
+                        'timestamp': time.time(),
+                        'alert_name': alert_name,
+                        'metric': metric_name,
+                        'value': value,
+                        'threshold': alert.threshold,
+                        'condition': alert.condition
+                    })
+                    
+                    # Execute callback if provided
+                    if alert.callback:
+                        try:
+                            alert.callback(alert, metric_name, value)
+                        except Exception as e:
+                            self.logger.error(f"Alert callback failed for {alert_name}: {e}")
+                
+                elif not should_trigger and alert.triggered:
+                    # Reset alert
+                    alert.triggered = False
+                    self.logger.info(f"Alert cleared: {alert_name}")
+                    
+        except Exception as e:
+            self.logger.error(f"Alert checking failed: {e}")
     
-    def _start_system_metrics_collection(self) -> None:
-        """Start automatic system metrics collection."""
-        def collect_system_metrics():
-            while self.system_metrics_enabled:
-                try:
-                    # CPU metrics
-                    cpu_percent = psutil.cpu_percent(interval=1)
-                    self.record_gauge("system.cpu.percent", cpu_percent)
+    def _cleanup_old_metrics(self) -> None:
+        """Clean up old metric data points."""
+        try:
+            cutoff_time = time.time() - self.retention_seconds
+            
+            for name, points in self.metrics.items():
+                # Remove old points
+                while points and points[0].timestamp < cutoff_time:
+                    points.popleft()
                     
-                    # Memory metrics
-                    memory = psutil.virtual_memory()
-                    self.record_gauge("system.memory.percent", memory.percent)
-                    self.record_gauge("system.memory.available", memory.available)
-                    self.record_gauge("system.memory.used", memory.used)
-                    
-                    # Disk metrics
-                    disk = psutil.disk_usage('/')
-                    self.record_gauge("system.disk.percent", disk.percent)
-                    self.record_gauge("system.disk.free", disk.free)
-                    self.record_gauge("system.disk.used", disk.used)
-                    
-                    # Network metrics
-                    network = psutil.net_io_counters()
-                    self.record_counter("system.network.bytes_sent", network.bytes_sent)
-                    self.record_counter("system.network.bytes_recv", network.bytes_recv)
-                    
-                    time.sleep(self.system_metrics_interval)
-                    
-                except Exception as e:
-                    logging.error(f"System metrics collection failed: {e}")
-                    time.sleep(self.system_metrics_interval)
-        
-        thread = threading.Thread(target=collect_system_metrics, daemon=True)
-        thread.start()
+        except Exception as e:
+            self.logger.error(f"Metric cleanup failed: {e}")
     
-    def get_all_metrics_summary(self) -> Dict[str, Any]:
-        """Get summary of all metrics.
-        
-        Returns:
-            Dictionary with metrics summary
-        """
-        with self.lock:
-            summary = {
-                'counters': dict(self.counters),
-                'gauges': dict(self.gauges),
-                'histograms': {},
-                'timers': {},
-                'rates': {},
+    def export_metrics(self, filepath: str, format: str = "json") -> None:
+        """Export metrics to file."""
+        try:
+            export_data = {
+                'export_timestamp': time.time(),
+                'system_info': self.get_all_metrics(),
                 'alerts': {
                     name: {
-                        'is_active': alert.is_active,
-                        'last_triggered': alert.last_triggered,
-                        'severity': alert.severity
+                        'metric': alert.metric,
+                        'threshold': alert.threshold,
+                        'condition': alert.condition,
+                        'triggered': alert.triggered,
+                        'trigger_count': alert.trigger_count
                     }
                     for name, alert in self.alerts.items()
                 }
             }
             
-            # Add histogram stats
-            for name in self.histograms:
-                summary['histograms'][name] = self.get_histogram_stats(name)
+            if format == "json":
+                with open(filepath, 'w') as f:
+                    json.dump(export_data, f, indent=2)
             
-            # Add timer stats
-            for name in self.timers:
-                summary['timers'][name] = self.get_timer_stats(name)
+            self.logger.info(f"Metrics exported to {filepath}")
             
-            # Add rates
-            for name in self.metrics:
-                summary['rates'][name] = self.get_rate(name)
-        
-        return summary
-    
-    def export_to_prometheus(self) -> str:
-        """Export metrics in Prometheus format.
-        
-        Returns:
-            Metrics in Prometheus text format
-        """
-        lines = []
-        
-        # Counters
-        for name, value in self.counters.items():
-            lines.append(f"# TYPE {name} counter")
-            lines.append(f"{name} {value}")
-        
-        # Gauges
-        for name, value in self.gauges.items():
-            lines.append(f"# TYPE {name} gauge")
-            lines.append(f"{name} {value}")
-        
-        # Histograms
-        for name, values in self.histograms.items():
-            if values:
-                stats = self.get_histogram_stats(name)
-                lines.append(f"# TYPE {name} histogram")
-                lines.append(f"{name}_count {stats['count']}")
-                lines.append(f"{name}_sum {sum(values)}")
-                
-                # Add quantiles
-                for quantile in [0.5, 0.95, 0.99]:
-                    q_value = np.percentile(values, quantile * 100)
-                    lines.append(f"{name}{{quantile=\"{quantile}\"}} {q_value}")
-        
-        return '\n'.join(lines)
+        except Exception as e:
+            self.logger.error(f"Failed to export metrics: {e}")
 
 
-class PerformanceProfiler:
-    """Performance profiling and analysis."""
-    
-    def __init__(self):
-        self.profiles: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
-        self.active_profiles: Dict[str, float] = {}
-        
-    def start_profile(self, name: str) -> None:
-        """Start profiling a section.
-        
-        Args:
-            name: Profile section name
-        """
-        self.active_profiles[name] = time.time()
-    
-    def end_profile(self, name: str, metadata: Optional[Dict[str, Any]] = None) -> float:
-        """End profiling a section.
-        
-        Args:
-            name: Profile section name
-            metadata: Additional metadata
-            
-        Returns:
-            Duration in seconds
-        """
-        if name not in self.active_profiles:
-            raise ValueError(f"Profile '{name}' not started")
-        
-        duration = time.time() - self.active_profiles[name]
-        del self.active_profiles[name]
-        
-        profile_data = {
-            'duration': duration,
-            'timestamp': time.time(),
-            'metadata': metadata or {}
-        }
-        
-        self.profiles[name].append(profile_data)
-        
-        # Keep only recent profiles
-        if len(self.profiles[name]) > 1000:
-            self.profiles[name] = self.profiles[name][-500:]
-        
-        return duration
-    
-    def profile_context(self, name: str, metadata: Optional[Dict[str, Any]] = None):
-        """Context manager for profiling.
-        
-        Args:
-            name: Profile section name
-            metadata: Additional metadata
-        """
-        class ProfileContext:
-            def __init__(self, profiler, name, metadata):
-                self.profiler = profiler
-                self.name = name
-                self.metadata = metadata
-                self.duration = 0
-            
-            def __enter__(self):
-                self.profiler.start_profile(self.name)
-                return self
-            
-            def __exit__(self, exc_type, exc_val, exc_tb):
-                self.duration = self.profiler.end_profile(self.name, self.metadata)
-        
-        return ProfileContext(self, name, metadata)
-    
-    def get_profile_stats(self, name: str) -> Dict[str, Any]:
-        """Get statistics for a profile.
-        
-        Args:
-            name: Profile name
-            
-        Returns:
-            Profile statistics
-        """
-        if name not in self.profiles or not self.profiles[name]:
-            return {}
-        
-        durations = [p['duration'] for p in self.profiles[name]]
-        
-        return {
-            'count': len(durations),
-            'total_time': sum(durations),
-            'min_time': min(durations),
-            'max_time': max(durations),
-            'mean_time': statistics.mean(durations),
-            'median_time': statistics.median(durations),
-            'p95_time': np.percentile(durations, 95),
-            'p99_time': np.percentile(durations, 99),
-            'std_time': statistics.stdev(durations) if len(durations) > 1 else 0
-        }
-    
-    def get_slowest_profiles(self, limit: int = 10) -> List[Dict[str, Any]]:
-        """Get slowest profile sections.
-        
-        Args:
-            limit: Number of results to return
-            
-        Returns:
-            List of slowest profiles
-        """
-        all_profiles = []
-        
-        for name, profiles in self.profiles.items():
-            for profile in profiles:
-                all_profiles.append({
-                    'name': name,
-                    'duration': profile['duration'],
-                    'timestamp': profile['timestamp'],
-                    'metadata': profile['metadata']
-                })
-        
-        # Sort by duration and return top results
-        all_profiles.sort(key=lambda x: x['duration'], reverse=True)
-        return all_profiles[:limit]
-
-
-class EventTracker:
-    """Tracks events and patterns in the system."""
-    
-    def __init__(self, max_events: int = 100000):
-        self.max_events = max_events
-        self.events: deque = deque(maxlen=max_events)
-        self.event_counts: Dict[str, int] = defaultdict(int)
-        self.lock = threading.Lock()
-    
-    def track_event(self, 
-                   event_type: str, 
-                   data: Optional[Dict[str, Any]] = None,
-                   tags: Optional[Dict[str, str]] = None) -> None:
-        """Track an event.
-        
-        Args:
-            event_type: Type of event
-            data: Event data
-            tags: Event tags
-        """
-        with self.lock:
-            event = {
-                'type': event_type,
-                'timestamp': time.time(),
-                'data': data or {},
-                'tags': tags or {}
-            }
-            
-            self.events.append(event)
-            self.event_counts[event_type] += 1
-    
-    def get_events(self, 
-                   event_type: Optional[str] = None,
-                   since: Optional[float] = None,
-                   limit: Optional[int] = None) -> List[Dict[str, Any]]:
-        """Get events matching criteria.
-        
-        Args:
-            event_type: Filter by event type
-            since: Filter events since timestamp
-            limit: Maximum number of events
-            
-        Returns:
-            List of matching events
-        """
-        with self.lock:
-            filtered_events = []
-            
-            for event in reversed(self.events):
-                # Apply filters
-                if event_type and event['type'] != event_type:
-                    continue
-                
-                if since and event['timestamp'] < since:
-                    break
-                
-                filtered_events.append(event)
-                
-                if limit and len(filtered_events) >= limit:
-                    break
-            
-            return list(reversed(filtered_events))
-    
-    def get_event_counts(self, 
-                        since: Optional[float] = None) -> Dict[str, int]:
-        """Get event counts.
-        
-        Args:
-            since: Count events since timestamp
-            
-        Returns:
-            Dictionary mapping event types to counts
-        """
-        if since is None:
-            return dict(self.event_counts)
-        
-        counts = defaultdict(int)
-        
-        with self.lock:
-            for event in self.events:
-                if event['timestamp'] >= since:
-                    counts[event['type']] += 1
-        
-        return dict(counts)
-    
-    def detect_anomalies(self, 
-                        window_minutes: float = 10.0,
-                        threshold_factor: float = 3.0) -> List[Dict[str, Any]]:
-        """Detect anomalous event patterns.
-        
-        Args:
-            window_minutes: Time window for analysis
-            threshold_factor: Factor above normal for anomaly detection
-            
-        Returns:
-            List of detected anomalies
-        """
-        window_seconds = window_minutes * 60
-        current_time = time.time()
-        
-        # Get baseline rates
-        baseline_start = current_time - (window_seconds * 4)  # 4x window for baseline
-        baseline_end = current_time - window_seconds
-        
-        baseline_counts = self.get_event_counts(since=baseline_start)
-        baseline_duration = baseline_end - baseline_start
-        
-        # Get current window rates
-        current_counts = self.get_event_counts(since=current_time - window_seconds)
-        
-        anomalies = []
-        
-        for event_type in set(list(baseline_counts.keys()) + list(current_counts.keys())):
-            baseline_rate = baseline_counts.get(event_type, 0) / baseline_duration
-            current_rate = current_counts.get(event_type, 0) / window_seconds
-            
-            # Check for anomalies
-            if current_rate > baseline_rate * threshold_factor:
-                anomalies.append({
-                    'event_type': event_type,
-                    'baseline_rate': baseline_rate,
-                    'current_rate': current_rate,
-                    'factor': current_rate / baseline_rate if baseline_rate > 0 else float('inf'),
-                    'window_minutes': window_minutes
-                })
-        
-        return anomalies
-
-
-# Global instances
-metrics_collector = MetricsCollector()
-performance_profiler = PerformanceProfiler()
-event_tracker = EventTracker()
-
-
-# Convenience functions
-
-def record_metric(name: str, value: float, metric_type: MetricType = MetricType.GAUGE, 
-                 tags: Optional[Dict[str, str]] = None) -> None:
-    """Record a metric value."""
-    if metric_type == MetricType.COUNTER:
-        metrics_collector.record_counter(name, value, tags)
-    elif metric_type == MetricType.GAUGE:
-        metrics_collector.record_gauge(name, value, tags)
-    elif metric_type == MetricType.HISTOGRAM:
-        metrics_collector.record_histogram(name, value, tags)
-    elif metric_type == MetricType.TIMER:
-        metrics_collector.record_timer(name, value, tags)
-
-
-def time_operation(name: str, tags: Optional[Dict[str, str]] = None):
-    """Decorator to time an operation."""
-    return metrics_collector.time_function(name, tags)
-
-
-def profile_operation(name: str, metadata: Optional[Dict[str, Any]] = None):
-    """Context manager to profile an operation."""
-    return performance_profiler.profile_context(name, metadata)
-
-
-def track_event(event_type: str, data: Optional[Dict[str, Any]] = None,
-               tags: Optional[Dict[str, str]] = None) -> None:
-    """Track an event."""
-    event_tracker.track_event(event_type, data, tags)
+# Predefined alert configurations
+def create_standard_alerts() -> List[Alert]:
+    """Create standard system alerts."""
+    return [
+        Alert(
+            name="high_cpu_usage",
+            metric="system_cpu_percent",
+            threshold=80.0,
+            condition="greater_than"
+        ),
+        Alert(
+            name="high_memory_usage", 
+            metric="system_memory_percent",
+            threshold=85.0,
+            condition="greater_than"
+        ),
+        Alert(
+            name="high_error_rate",
+            metric="simulation_error_rate",
+            threshold=10.0,
+            condition="greater_than"
+        ),
+        Alert(
+            name="slow_response_time",
+            metric="arena_creation_time",
+            threshold=5000.0,  # 5 seconds
+            condition="greater_than"
+        )
+    ]
