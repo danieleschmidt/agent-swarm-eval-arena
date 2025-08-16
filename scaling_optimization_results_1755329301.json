@@ -1,0 +1,171 @@
+{
+  "experiment_timestamp": 1755329301.0975208,
+  "demo_duration": 1.0548009872436523,
+  "scaling_features": {
+    "quantum_optimization": "operational",
+    "neuromorphic_processing": "operational",
+    "hybrid_algorithms": "operational",
+    "performance_scaling": "operational"
+  },
+  "scaling_metrics": {
+    "quantum_advantage": 1.2,
+    "neuromorphic_efficiency": 999999999.9999999,
+    "performance_scaling": 1.0,
+    "demo_efficiency": 3.7921845432213512
+  },
+  "overall_scaling_score": 250000001.49804613,
+  "benchmark_results": {
+    "quantum_optimization": [
+      {
+        "problem_size": 5,
+        "quantum_time": 0.0006339550018310547,
+        "quantum_energy": 9.521927504173067e-06,
+        "quantum_advantage": 1.2,
+        "estimated_advantage": {
+          "theoretical_advantage": 1.8047189562170503,
+          "noise_factor": 0.95,
+          "coherence_factor": 0.975,
+          "practical_advantage": 1.6716209331960428,
+          "recommended": "True"
+        },
+        "solution_quality": 0.999990478163162
+      },
+      {
+        "problem_size": 10,
+        "quantum_time": 0.0005238056182861328,
+        "quantum_energy": 2.015982172839171e-05,
+        "quantum_advantage": 1.2,
+        "estimated_advantage": {
+          "theoretical_advantage": 2.151292546497023,
+          "noise_factor": 0.9,
+          "coherence_factor": 0.95,
+          "practical_advantage": 1.8393551272549544,
+          "recommended": "True"
+        },
+        "solution_quality": 0.9999798405846818
+      },
+      {
+        "problem_size": 15,
+        "quantum_time": 0.0004887580871582031,
+        "quantum_energy": 3.4724135618835174e-05,
+        "quantum_advantage": 1.2,
+        "estimated_advantage": {
+          "theoretical_advantage": 2.3540251005511053,
+          "noise_factor": 0.85,
+          "coherence_factor": 0.925,
+          "practical_advantage": 1.8508522353083063,
+          "recommended": "True"
+        },
+        "solution_quality": 0.9999652770701049
+      },
+      {
+        "problem_size": 20,
+        "quantum_time": 0.0004677772521972656,
+        "quantum_energy": 3.8222827296044056e-05,
+        "quantum_advantage": 1.2,
+        "estimated_advantage": {
+          "theoretical_advantage": 2.497866136776995,
+          "noise_factor": 0.8,
+          "coherence_factor": 0.9,
+          "practical_advantage": 1.7984636184794367,
+          "recommended": "True"
+        },
+        "solution_quality": 0.9999617786336326
+      }
+    ],
+    "neuromorphic_processing": [
+      {
+        "agent_count": 10,
+        "processing_time": 0.24060535430908203,
+        "energy_consumption": 0.0,
+        "energy_efficiency": 100000000.0,
+        "speed_advantage": 0.04156891954970002,
+        "agents_per_second": 41.56891972249752,
+        "behavior_classification": {
+          "flocking": 0.0,
+          "dispersing": 0.0,
+          "clustering": 0.0,
+          "searching": 0.0,
+          "coordinated": 0.0
+        }
+      },
+      {
+        "agent_count": 25,
+        "processing_time": 0.2413043975830078,
+        "energy_consumption": 0.0,
+        "energy_efficiency": 249999999.99999997,
+        "speed_advantage": 0.10362129390776723,
+        "agents_per_second": 103.62129433726213,
+        "behavior_classification": {
+          "flocking": 0.0,
+          "dispersing": 0.0,
+          "clustering": 0.0,
+          "searching": 0.0,
+          "coordinated": 0.0
+        }
+      },
+      {
+        "agent_count": 50,
+        "processing_time": 0.24361848831176758,
+        "energy_consumption": 0.0,
+        "energy_efficiency": 499999999.99999994,
+        "speed_advantage": 0.20527529968218697,
+        "agents_per_second": 205.27530052494595,
+        "behavior_classification": {
+          "flocking": 0.0,
+          "dispersing": 0.0,
+          "clustering": 0.0,
+          "searching": 0.0,
+          "coordinated": 0.0
+        }
+      },
+      {
+        "agent_count": 100,
+        "processing_time": 0.24603724479675293,
+        "energy_consumption": 0.0,
+        "energy_efficiency": 999999999.9999999,
+        "speed_advantage": 0.40652604213927906,
+        "agents_per_second": 406.5260437919133,
+        "behavior_classification": {
+          "flocking": 0.0,
+          "dispersing": 0.0,
+          "clustering": 0.0,
+          "searching": 0.0,
+          "coordinated": 0.0
+        }
+      }
+    ],
+    "hybrid_optimization": [
+      {
+        "scenario": "Small Swarm",
+        "agent_count": 10,
+        "optimization_type": "pure_quantum",
+        "execution_time": 0.0006785392761230469,
+        "quantum_advantage": 1.2
+      },
+      {
+        "scenario": "Medium Swarm",
+        "agent_count": 25,
+        "optimization_type": "hybrid_quantum_classical",
+        "execution_time": 0.0021233558654785156,
+        "quantum_advantage": 0.0,
+        "num_clusters": 1
+      },
+      {
+        "scenario": "Large Swarm",
+        "agent_count": 100,
+        "optimization_type": "hybrid_quantum_classical",
+        "execution_time": 0.005384683609008789,
+        "quantum_advantage": 0.7999999999999999,
+        "num_clusters": 6
+      }
+    ],
+    "performance_scaling": []
+  },
+  "performance_highlights": {
+    "max_quantum_advantage": 1.2,
+    "max_energy_efficiency": 999999999.9999999,
+    "max_throughput": 406.5260437919133,
+    "max_swarm_size": 0
+  }
+}
