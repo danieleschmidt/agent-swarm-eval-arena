@@ -1,0 +1,105 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: swarm-arena-production
+  namespace: terragon-ai
+  labels:
+    app: swarm-arena
+    version: v1.0.0
+    tier: production
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: swarm-arena
+  template:
+    metadata:
+      labels:
+        app: swarm-arena
+        version: v1.0.0
+    spec:
+      containers:
+      - name: swarm-arena
+        image: terragon/swarm-arena:v1.0.0
+        ports:
+        - containerPort: 8000
+          name: api
+        - containerPort: 9090
+          name: metrics
+        env:
+        - name: ENVIRONMENT
+          value: "production"
+        - name: LOG_LEVEL
+          value: "INFO"
+        - name: PROMETHEUS_PORT
+          value: "9090"
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1000m"
+          limits:
+            memory: "8Gi"
+            cpu: "4000m"
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 60
+          periodSeconds: 30
+        volumeMounts:
+        - name: config-volume
+          mountPath: /app/config
+      volumes:
+      - name: config-volume
+        configMap:
+          name: swarm-arena-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: swarm-arena-service
+  namespace: terragon-ai
+spec:
+  selector:
+    app: swarm-arena
+  ports:
+  - name: api
+    port: 80
+    targetPort: 8000
+  - name: metrics
+    port: 9090
+    targetPort: 9090
+  type: LoadBalancer
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: swarm-arena-hpa
+  namespace: terragon-ai
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: swarm-arena-production
+  minReplicas: 3
+  maxReplicas: 100
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
