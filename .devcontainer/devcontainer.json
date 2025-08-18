@@ -1,0 +1,146 @@
+{
+  "name": "Agent Swarm Evaluation Arena",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "devcontainer",
+  "workspaceFolder": "/workspace",
+  "shutdownAction": "stopCompose",
+  
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": true,
+      "configureZshAsDefaultShell": true,
+      "installOhMyZsh": true,
+      "upgradePackages": true,
+      "username": "vscode",
+      "uid": "automatic",
+      "gid": "automatic"
+    },
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.9",
+      "installTools": true,
+      "optimize": true,
+      "enableShared": true,
+      "installPath": "/usr/local/python",
+      "installJupyterlab": true,
+      "configureJupyterlabAllowOrigin": "*"
+    },
+    "ghcr.io/devcontainers/features/git:1": {
+      "ppa": true,
+      "version": "latest"
+    },
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "version": "latest",
+      "enableNonRootDocker": "true",
+      "moby": "true"
+    },
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "18",
+      "nodeGypDependencies": true,
+      "installYarnUsingApt": true
+    }
+  },
+  
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/python/current/bin/python",
+        "python.linting.enabled": true,
+        "python.linting.pylintEnabled": false,
+        "python.linting.flake8Enabled": true,
+        "python.linting.mypyEnabled": true,
+        "python.formatting.provider": "black",
+        "python.formatting.blackArgs": ["--line-length=88"],
+        "python.sortImports.args": ["--profile=black"],
+        "python.testing.pytestEnabled": true,
+        "python.testing.unittestEnabled": false,
+        "python.testing.pytestArgs": ["tests"],
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+          "source.organizeImports": true
+        },
+        "files.trimTrailingWhitespace": true,
+        "files.trimFinalNewlines": true,
+        "files.insertFinalNewline": true,
+        "terminal.integrated.defaultProfile.linux": "zsh",
+        "git.autofetch": true,
+        "git.enableSmartCommit": true,
+        "workbench.colorTheme": "GitHub Dark Default",
+        "jupyter.askForKernelRestart": false,
+        "jupyter.interactiveWindow.collapseCellInputCode": "firstLine"
+      },
+      "extensions": [
+        "ms-python.python",
+        "ms-python.flake8",
+        "ms-python.mypy-type-checker",
+        "ms-python.black-formatter",
+        "ms-python.isort",
+        "ms-toolsai.jupyter",
+        "ms-toolsai.jupyter-keymap",
+        "ms-toolsai.jupyter-renderers",
+        "ms-vscode.vscode-json",
+        "redhat.vscode-yaml",
+        "ms-vscode.makefile-tools",
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "GitHub.vscode-pull-request-github",
+        "eamodio.gitlens",
+        "mhutchie.git-graph",
+        "ms-vscode.vscode-docker",
+        "ms-azuretools.vscode-docker",
+        "formulahendry.code-runner",
+        "christian-kohler.path-intellisense",
+        "VisualStudioExptTeam.vscodeintellicode",
+        "ms-vscode.live-server",
+        "bradlc.vscode-tailwindcss",
+        "esbenp.prettier-vscode"
+      ]
+    }
+  },
+  
+  "forwardPorts": [
+    8000,
+    8080,
+    8888,
+    6379,
+    10001
+  ],
+  "portsAttributes": {
+    "8000": {
+      "label": "Arena API Server",
+      "onAutoForward": "notify"
+    },
+    "8080": {
+      "label": "Monitoring Dashboard",
+      "onAutoForward": "openPreview"
+    },
+    "8888": {
+      "label": "Jupyter Lab",
+      "onAutoForward": "openPreview"
+    },
+    "6379": {
+      "label": "Redis",
+      "onAutoForward": "silent"
+    },
+    "10001": {
+      "label": "Ray Dashboard",
+      "onAutoForward": "notify"
+    }
+  },
+  
+  "postCreateCommand": "pip install -e '.[dev,viz,distributed]' && pre-commit install && python -m pytest tests/ --maxfail=5",
+  "postStartCommand": "git config --global --add safe.directory ${containerWorkspaceFolder}",
+  
+  "remoteUser": "vscode",
+  "containerEnv": {
+    "PYTHONPATH": "/workspace",
+    "RAY_DISABLE_USAGE_STATS": "1",
+    "RAY_DEDUP_LOGS": "0",
+    "JUPYTER_ENABLE_LAB": "yes"
+  },
+  
+  "mounts": [
+    "source=${localWorkspaceFolder}/.git,target=/workspace/.git,type=bind,consistency=cached",
+    "source=swarm-arena-pip-cache,target=/home/vscode/.cache/pip,type=volume",
+    "source=swarm-arena-extensions,target=/home/vscode/.vscode-server/extensions,type=volume"
+  ]
+}

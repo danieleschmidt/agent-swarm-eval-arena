@@ -205,3 +205,144 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# ==============================================
+# Swarm Arena Specific
+# ==============================================
+
+# Data and experiment outputs
+/data/
+/logs/
+/temp/
+/cache/
+/backups/
+/experiments/
+/results/
+
+# Configuration files with secrets
+.env.local
+.env.production
+config/secrets.yaml
+config/local.yaml
+
+# Ray temporary files and logs
+/ray_results/
+/ray_logs/
+ray_timeline_*.json
+ray_profile_*.json
+
+# Jupyter notebooks (optional - uncomment if you want to ignore notebooks)
+# *.ipynb
+
+# Large model files and datasets
+*.h5
+*.hdf5
+*.pkl
+*.pickle
+*.joblib
+*.pt
+*.pth
+*.safetensors
+*.onnx
+*.pb
+
+# Visualization and plot outputs
+plots/
+figures/
+videos/
+animations/
+*.mp4
+*.gif
+*.png
+*.jpg
+*.jpeg
+*.svg
+*.pdf
+
+# Performance profiling outputs
+/profiles/
+*.prof
+*.pstats
+
+# Database dumps and backups
+*.dump
+*.sql.gz
+*.db.backup
+
+# Redis dumps
+dump.rdb
+appendonly.aof
+
+# Temporary directories
+tmp/
+temp_*
+.tmp/
+
+# IDE and editor files
+.vscode/settings.json
+.vscode/launch.json
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Documentation build artifacts
+docs/_build/
+docs/build/
+_build/
+_static/
+
+# Package manager artifacts
+node_modules/
+package-lock.json
+yarn.lock
+
+# Terraform state files
+*.tfstate
+*.tfstate.*
+.terraform/
+
+# Docker compose overrides
+docker-compose.override.yml
+docker-compose.local.yml
+
+# Kubernetes secrets
+*-secret.yaml
+secrets/
+
+# SSL certificates
+*.pem
+*.key
+*.crt
+*.cer
+*.p12
+*.pfx
+
+# Monitoring and metrics data
+/metrics/
+/monitoring/
+*.influx
+*.prometheus
+
+# Test artifacts
+test_results/
+test_outputs/
+.pytest_tmp/
+
+# Coverage reports (additional)
+coverage_html/
+.coverage_cache/
+
+# Backup files
+*.bak
+*.backup
+*.old
