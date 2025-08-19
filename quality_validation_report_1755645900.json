@@ -1,0 +1,77 @@
+{
+  "validation_timestamp": 1755645900.867768,
+  "execution_time": 1.3343565464019775,
+  "overall_score": 0.7033333333333334,
+  "overall_status": "ACCEPTABLE",
+  "tests_summary": {
+    "total_passed": 14,
+    "total_tests": 20,
+    "success_rate": 0.7
+  },
+  "feature_availability": {
+    "core_system": true,
+    "generation_1_research": false,
+    "generation_2_robustness": true,
+    "generation_3_performance": true
+  },
+  "detailed_results": {
+    "core_system": {
+      "status": "partial",
+      "tests_passed": 4,
+      "tests_total": 5,
+      "success_rate": 0.8,
+      "individual_tests": {
+        "config_validation": true,
+        "arena_creation": true,
+        "agent_creation": true,
+        "basic_simulation": true,
+        "error_handling": false
+      }
+    },
+    "generation_1_research": {
+      "status": "failed",
+      "tests_passed": 0,
+      "tests_total": 4,
+      "error": "Generation 1 imports failed"
+    },
+    "generation_2_robustness": {
+      "status": "passed",
+      "tests_passed": 4,
+      "tests_total": 4,
+      "success_rate": 1.0,
+      "individual_tests": {
+        "quantum_error_correction": true,
+        "advanced_authentication": true,
+        "trust_management": true,
+        "token_validation": true
+      }
+    },
+    "generation_3_performance": {
+      "status": "passed",
+      "tests_passed": 4,
+      "tests_total": 4,
+      "success_rate": 1.0,
+      "individual_tests": {
+        "quantum_optimization": true,
+        "neuromorphic_processing": true,
+        "performance_metrics": true,
+        "scaling_validation": true
+      }
+    },
+    "integration": {
+      "status": "partial",
+      "tests_passed": 2,
+      "tests_total": 3,
+      "success_rate": 0.6666666666666666,
+      "individual_tests": {
+        "core_research_integration": false,
+        "security_performance_integration": true,
+        "full_system_integration": true
+      }
+    }
+  },
+  "recommendations": [
+    "Research features need attention - check imports and dependencies",
+    "Integration issues detected - review component compatibility"
+  ]
+}
