@@ -43,6 +43,7 @@ class SwarmConfig:
     
     # Communication
     communication_enabled: bool = False
+    enable_communication: bool = False  # Alternative name for compatibility
     communication_radius: float = 50.0
     max_messages_per_step: int = 10
     

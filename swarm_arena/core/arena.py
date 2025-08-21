@@ -84,6 +84,10 @@ class Arena:
         self.step_times: List[float] = []
         self._max_performance_history = 1000  # Prevent memory growth
         
+        # Communication tracking for research
+        self.communication_signals: List[Any] = []
+        self.record_communication = False
+        
     def add_agents(self, agent_class: Type[BaseAgent], count: int, **agent_kwargs: Any) -> None:
         """Add multiple agents of the same type to the arena.
         
@@ -471,3 +475,74 @@ class Arena:
                 rewards[agent_id] += self.config.reward_config.get("survival_bonus", 0.01)
         
         return rewards
+    
+    def run_episode(self, max_steps: int = 1000, record_communication: bool = False) -> Dict[str, Any]:
+        """Run a single episode with detailed recording capabilities.
+        
+        Args:
+            max_steps: Maximum steps in the episode
+            record_communication: Whether to record communication signals
+            
+        Returns:
+            Dictionary containing episode data
+        """
+        self.record_communication = record_communication
+        self.communication_signals = []
+        
+        # Reset for new episode
+        self.reset()
+        
+        episode_data = {
+            "agent_positions": {aid: [] for aid in self.agents.keys()},
+            "agent_actions": {aid: [] for aid in self.agents.keys()},
+            "communication_signals": [],
+            "rewards": {aid: [] for aid in self.agents.keys()},
+            "steps": 0
+        }
+        
+        done = False
+        step = 0
+        
+        while not done and step < max_steps:
+            # Get observations
+            observations = self._get_observations()
+            
+            # Collect agent actions
+            actions = {}
+            for agent_id, agent in self.agents.items():
+                if agent.state.alive:
+                    action = agent.act(observations[agent_id])
+                    actions[agent_id] = action
+                    
+                    # Record action for research
+                    if isinstance(action, dict):
+                        # Handle communication-enabled actions
+                        movement = action.get("movement", [0, 0])
+                        communication = action.get("communication", [])
+                        
+                        episode_data["agent_actions"][agent_id].append(movement)
+                        
+                        # Record communication signals
+                        if record_communication and communication:
+                            episode_data["communication_signals"].extend(communication)
+                    else:
+                        episode_data["agent_actions"][agent_id].append(action)
+            
+            # Record positions
+            for agent_id in self.agents.keys():
+                if agent_id in self.agent_positions:
+                    episode_data["agent_positions"][agent_id].append(
+                        self.agent_positions[agent_id].copy()
+                    )
+            
+            # Execute step
+            obs, rewards, done, info = self.step()
+            
+            # Record rewards
+            for agent_id, reward in rewards.items():
+                episode_data["rewards"][agent_id].append(reward)
+            
+            step += 1
+        
+        episode_data["steps"] = step
+        return episode_data

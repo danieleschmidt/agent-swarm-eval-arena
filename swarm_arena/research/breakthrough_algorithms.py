@@ -573,3 +573,26 @@ class BreakthroughAlgorithms:
             
         except Exception:
             return 0.0
+
+
+class CausalDiscoveryEngine:
+    """Engine for discovering causal relationships in multi-agent systems."""
+    
+    def __init__(self):
+        self.algorithms = BreakthroughAlgorithms()
+        
+    def discover_relationships(self, agent_data: Dict[int, np.ndarray]) -> CausalGraph:
+        """Discover causal relationships between agents."""
+        return self.algorithms.discover_causal_structure(agent_data)
+
+
+class EmergentPatternDetector:
+    """Detector for emergent patterns in agent behavior."""
+    
+    def __init__(self):
+        self.algorithms = BreakthroughAlgorithms()
+        
+    def detect_patterns(self, positions: Dict[int, np.ndarray], 
+                       actions: Dict[int, np.ndarray]) -> List[EmergentPattern]:
+        """Detect emergent patterns in agent behavior."""
+        return self.algorithms.detect_emergent_behaviors(positions, actions)
