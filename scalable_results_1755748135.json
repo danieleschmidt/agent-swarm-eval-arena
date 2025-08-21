@@ -1,0 +1,39 @@
+{
+  "performance_metrics": {
+    "avg_steps_per_second": 25084.520184883324,
+    "max_steps_per_second": 31478.134263949865,
+    "avg_cache_hit_rate": 0.0,
+    "memory_efficiency": 100,
+    "total_scaling_events": 0
+  },
+  "scaling_events": [],
+  "emergent_patterns": [],
+  "agent_analysis": {
+    "strategy_distribution": {
+      "coordinator": 163,
+      "follower": 169,
+      "explorer": 168
+    },
+    "cache_performance": {
+      "coordinator": {
+        "mean_hit_rate": 0.0,
+        "total_agents": 163
+      },
+      "follower": {
+        "mean_hit_rate": 0.0,
+        "total_agents": 169
+      },
+      "explorer": {
+        "mean_hit_rate": 0.0,
+        "total_agents": 168
+      }
+    }
+  },
+  "computational_efficiency": {
+    "agents_per_second": 12542260.092441661,
+    "computational_density": 0.06103515625,
+    "scaling_efficiency": 1.0,
+    "cache_efficiency": 0.0
+  },
+  "total_runtime": 0.269916296005249
+}

@@ -1,0 +1,618 @@
+{
+  "emergent_patterns": [],
+  "agent_strategies": {
+    "strategy_distribution": {
+      "explorer": 8,
+      "follower": 11,
+      "coordinator": 11
+    },
+    "performance": {
+      "explorer": {
+        "mean": 0.0,
+        "std": 0.0,
+        "max": 0
+      },
+      "follower": {
+        "mean": 0.0,
+        "std": 0.0,
+        "max": 0
+      },
+      "coordinator": {
+        "mean": 0.0,
+        "std": 0.0,
+        "max": 0
+      }
+    }
+  },
+  "temporal_analysis": [
+    {
+      "time_window": "0-50",
+      "clustering_coefficient": 0.6899308841056577,
+      "movement_synchronization": 0.3040134651294015,
+      "active_agents": 30
+    },
+    {
+      "time_window": "25-75",
+      "clustering_coefficient": 0.6903895902000773,
+      "movement_synchronization": 0.2742292314115585,
+      "active_agents": 30
+    },
+    {
+      "time_window": "50-100",
+      "clustering_coefficient": 0.6909237893495401,
+      "movement_synchronization": 0.23740694393908174,
+      "active_agents": 30
+    },
+    {
+      "time_window": "75-125",
+      "clustering_coefficient": 0.6910687334020102,
+      "movement_synchronization": 0.208210853999119,
+      "active_agents": 30
+    },
+    {
+      "time_window": "100-150",
+      "clustering_coefficient": 0.6912165809173834,
+      "movement_synchronization": 0.19474197069213164,
+      "active_agents": 30
+    },
+    {
+      "time_window": "125-175",
+      "clustering_coefficient": 0.6911988088580272,
+      "movement_synchronization": 0.21429976165357922,
+      "active_agents": 30
+    },
+    {
+      "time_window": "150-200",
+      "clustering_coefficient": 0.691332779980671,
+      "movement_synchronization": 0.21044792885122887,
+      "active_agents": 30
+    },
+    {
+      "time_window": "175-225",
+      "clustering_coefficient": 0.6909785026122263,
+      "movement_synchronization": 0.21133009821945165,
+      "active_agents": 30
+    },
+    {
+      "time_window": "200-250",
+      "clustering_coefficient": 0.6905531364993037,
+      "movement_synchronization": 0.1744394635924972,
+      "active_agents": 30
+    },
+    {
+      "time_window": "225-275",
+      "clustering_coefficient": 0.6905481545659273,
+      "movement_synchronization": 0.1488401037890464,
+      "active_agents": 30
+    },
+    {
+      "time_window": "250-300",
+      "clustering_coefficient": 0.6907181492382377,
+      "movement_synchronization": 0.1712116845889253,
+      "active_agents": 30
+    },
+    {
+      "time_window": "275-325",
+      "clustering_coefficient": 0.6910170959350093,
+      "movement_synchronization": 0.19573662050025462,
+      "active_agents": 30
+    },
+    {
+      "time_window": "300-350",
+      "clustering_coefficient": 0.6914863457900005,
+      "movement_synchronization": 0.20689991090883678,
+      "active_agents": 30
+    },
+    {
+      "time_window": "325-375",
+      "clustering_coefficient": 0.6914102030254736,
+      "movement_synchronization": 0.20300440491256722,
+      "active_agents": 30
+    },
+    {
+      "time_window": "350-400",
+      "clustering_coefficient": 0.691115624757042,
+      "movement_synchronization": 0.22365805884986312,
+      "active_agents": 30
+    },
+    {
+      "time_window": "375-425",
+      "clustering_coefficient": 0.6911260050516024,
+      "movement_synchronization": 0.24703739898313667,
+      "active_agents": 30
+    },
+    {
+      "time_window": "400-450",
+      "clustering_coefficient": 0.6908742888191022,
+      "movement_synchronization": 0.2571121841714087,
+      "active_agents": 30
+    },
+    {
+      "time_window": "425-475",
+      "clustering_coefficient": 0.6909336173606484,
+      "movement_synchronization": 0.24597102510127833,
+      "active_agents": 30
+    },
+    {
+      "time_window": "450-500",
+      "clustering_coefficient": 0.6906753911114027,
+      "movement_synchronization": 0.19958381529919983,
+      "active_agents": 30
+    },
+    {
+      "time_window": "475-525",
+      "clustering_coefficient": 0.7162982887636249,
+      "movement_synchronization": 0.6293820226010229,
+      "active_agents": 30
+    },
+    {
+      "time_window": "500-550",
+      "clustering_coefficient": 0.7153545872818404,
+      "movement_synchronization": 0.2297110777040008,
+      "active_agents": 30
+    },
+    {
+      "time_window": "525-575",
+      "clustering_coefficient": 0.7146902558052908,
+      "movement_synchronization": 0.2573571142432641,
+      "active_agents": 30
+    },
+    {
+      "time_window": "550-600",
+      "clustering_coefficient": 0.7135478981103475,
+      "movement_synchronization": 0.2379277742139098,
+      "active_agents": 30
+    },
+    {
+      "time_window": "575-625",
+      "clustering_coefficient": 0.7124106147093374,
+      "movement_synchronization": 0.21683632274009523,
+      "active_agents": 30
+    },
+    {
+      "time_window": "600-650",
+      "clustering_coefficient": 0.7112902701641177,
+      "movement_synchronization": 0.22245155098167968,
+      "active_agents": 30
+    },
+    {
+      "time_window": "625-675",
+      "clustering_coefficient": 0.7102295558674199,
+      "movement_synchronization": 0.22405835218501957,
+      "active_agents": 30
+    },
+    {
+      "time_window": "650-700",
+      "clustering_coefficient": 0.7092911381262144,
+      "movement_synchronization": 0.22769040906933255,
+      "active_agents": 30
+    },
+    {
+      "time_window": "675-725",
+      "clustering_coefficient": 0.7081785281622759,
+      "movement_synchronization": 0.19234289909023441,
+      "active_agents": 30
+    },
+    {
+      "time_window": "700-750",
+      "clustering_coefficient": 0.7071398135461375,
+      "movement_synchronization": 0.1795032262382419,
+      "active_agents": 30
+    },
+    {
+      "time_window": "725-775",
+      "clustering_coefficient": 0.7065234797712869,
+      "movement_synchronization": 0.1857218311607848,
+      "active_agents": 30
+    },
+    {
+      "time_window": "750-800",
+      "clustering_coefficient": 0.7056924840730449,
+      "movement_synchronization": 0.18138657418517748,
+      "active_agents": 30
+    },
+    {
+      "time_window": "775-825",
+      "clustering_coefficient": 0.70468307494369,
+      "movement_synchronization": 0.18389277106771645,
+      "active_agents": 30
+    },
+    {
+      "time_window": "800-850",
+      "clustering_coefficient": 0.703790401742997,
+      "movement_synchronization": 0.18895156419727402,
+      "active_agents": 30
+    },
+    {
+      "time_window": "825-875",
+      "clustering_coefficient": 0.7026494263351594,
+      "movement_synchronization": 0.198262405126442,
+      "active_agents": 30
+    },
+    {
+      "time_window": "850-900",
+      "clustering_coefficient": 0.7015759045044081,
+      "movement_synchronization": 0.1960229181222157,
+      "active_agents": 30
+    },
+    {
+      "time_window": "875-925",
+      "clustering_coefficient": 0.7007803730952694,
+      "movement_synchronization": 0.19473138848443147,
+      "active_agents": 30
+    },
+    {
+      "time_window": "900-950",
+      "clustering_coefficient": 0.6999756227658668,
+      "movement_synchronization": 0.18132911553065742,
+      "active_agents": 30
+    },
+    {
+      "time_window": "925-975",
+      "clustering_coefficient": 0.6993205419123507,
+      "movement_synchronization": 0.17451720923869704,
+      "active_agents": 30
+    },
+    {
+      "time_window": "950-1000",
+      "clustering_coefficient": 0.6984341785746855,
+      "movement_synchronization": 0.18841796925754659,
+      "active_agents": 30
+    },
+    {
+      "time_window": "975-1025",
+      "clustering_coefficient": 0.7100009877447224,
+      "movement_synchronization": 0.6359620644499308,
+      "active_agents": 30
+    },
+    {
+      "time_window": "1000-1050",
+      "clustering_coefficient": 0.7098673074030066,
+      "movement_synchronization": 0.21575118997238157,
+      "active_agents": 30
+    },
+    {
+      "time_window": "1025-1075",
+      "clustering_coefficient": 0.7093977642383096,
+      "movement_synchronization": 0.18935874254194737,
+      "active_agents": 30
+    },
+    {
+      "time_window": "1050-1100",
+      "clustering_coefficient": 0.7092439035741713,
+      "movement_synchronization": 0.18278430414158048,
+      "active_agents": 30
+    },
+    {
+      "time_window": "1075-1125",
+      "clustering_coefficient": 0.709131420176234,
+      "movement_synchronization": 0.17170605697764266,
+      "active_agents": 30
+    },
+    {
+      "time_window": "1100-1150",
+      "clustering_coefficient": 0.7089964447258621,
+      "movement_synchronization": 0.1783803048488165,
+      "active_agents": 30
+    },
+    {
+      "time_window": "1125-1175",
+      "clustering_coefficient": 0.7086354315007222,
+      "movement_synchronization": 0.18239835385627395,
+      "active_agents": 30
+    },
+    {
+      "time_window": "1150-1200",
+      "clustering_coefficient": 0.7081777931842294,
+      "movement_synchronization": 0.18643038181122437,
+      "active_agents": 30
+    },
+    {
+      "time_window": "1175-1225",
+      "clustering_coefficient": 0.7075015722591167,
+      "movement_synchronization": 0.17187298398184483,
+      "active_agents": 30
+    },
+    {
+      "time_window": "1200-1250",
+      "clustering_coefficient": 0.7071891659108523,
+      "movement_synchronization": 0.15384905538443067,
+      "active_agents": 30
+    },
+    {
+      "time_window": "1225-1275",
+      "clustering_coefficient": 0.7064297477772401,
+      "movement_synchronization": 0.14387407215499712,
+      "active_agents": 30
+    },
+    {
+      "time_window": "1250-1300",
+      "clustering_coefficient": 0.7057724048148901,
+      "movement_synchronization": 0.14315956529934423,
+      "active_agents": 30
+    },
+    {
+      "time_window": "1275-1325",
+      "clustering_coefficient": 0.7050644072714916,
+      "movement_synchronization": 0.1444216894903515,
+      "active_agents": 30
+    },
+    {
+      "time_window": "1300-1350",
+      "clustering_coefficient": 0.7044197395662117,
+      "movement_synchronization": 0.1307872807178693,
+      "active_agents": 30
+    },
+    {
+      "time_window": "1325-1375",
+      "clustering_coefficient": 0.7035731618615438,
+      "movement_synchronization": 0.1299238036163437,
+      "active_agents": 30
+    },
+    {
+      "time_window": "1350-1400",
+      "clustering_coefficient": 0.7027851576547233,
+      "movement_synchronization": 0.12951769225821208,
+      "active_agents": 30
+    },
+    {
+      "time_window": "1375-1425",
+      "clustering_coefficient": 0.702160232868914,
+      "movement_synchronization": 0.1316370075016673,
+      "active_agents": 30
+    },
+    {
+      "time_window": "1400-1450",
+      "clustering_coefficient": 0.7012815074701692,
+      "movement_synchronization": 0.13770896122512274,
+      "active_agents": 30
+    },
+    {
+      "time_window": "1425-1475",
+      "clustering_coefficient": 0.7008283201333003,
+      "movement_synchronization": 0.14266241301853255,
+      "active_agents": 30
+    },
+    {
+      "time_window": "1450-1500",
+      "clustering_coefficient": 0.6997969637484391,
+      "movement_synchronization": 0.1564720965667058,
+      "active_agents": 30
+    },
+    {
+      "time_window": "1475-1525",
+      "clustering_coefficient": 0.7095939606420915,
+      "movement_synchronization": 0.6505879012864647,
+      "active_agents": 30
+    },
+    {
+      "time_window": "1500-1550",
+      "clustering_coefficient": 0.7105156602637108,
+      "movement_synchronization": 0.20619217454035532,
+      "active_agents": 30
+    },
+    {
+      "time_window": "1525-1575",
+      "clustering_coefficient": 0.7111779588094034,
+      "movement_synchronization": 0.226924799224468,
+      "active_agents": 30
+    },
+    {
+      "time_window": "1550-1600",
+      "clustering_coefficient": 0.7117478662044727,
+      "movement_synchronization": 0.2560753715658392,
+      "active_agents": 30
+    },
+    {
+      "time_window": "1575-1625",
+      "clustering_coefficient": 0.7121115740391706,
+      "movement_synchronization": 0.24821199057752327,
+      "active_agents": 30
+    },
+    {
+      "time_window": "1600-1650",
+      "clustering_coefficient": 0.7122516272347507,
+      "movement_synchronization": 0.21313118210715645,
+      "active_agents": 30
+    },
+    {
+      "time_window": "1625-1675",
+      "clustering_coefficient": 0.7122347034132233,
+      "movement_synchronization": 0.14462144317281045,
+      "active_agents": 30
+    },
+    {
+      "time_window": "1650-1700",
+      "clustering_coefficient": 0.7126315601597424,
+      "movement_synchronization": 0.14247373962048704,
+      "active_agents": 30
+    },
+    {
+      "time_window": "1675-1725",
+      "clustering_coefficient": 0.712477500461898,
+      "movement_synchronization": 0.15390156593898155,
+      "active_agents": 30
+    },
+    {
+      "time_window": "1700-1750",
+      "clustering_coefficient": 0.7124711433277882,
+      "movement_synchronization": 0.15818854341988772,
+      "active_agents": 30
+    },
+    {
+      "time_window": "1725-1775",
+      "clustering_coefficient": 0.7122744309468991,
+      "movement_synchronization": 0.14167192333878983,
+      "active_agents": 30
+    },
+    {
+      "time_window": "1750-1800",
+      "clustering_coefficient": 0.7116044455175515,
+      "movement_synchronization": 0.11838379401759085,
+      "active_agents": 30
+    },
+    {
+      "time_window": "1775-1825",
+      "clustering_coefficient": 0.7110465193163732,
+      "movement_synchronization": 0.1252372038119857,
+      "active_agents": 30
+    },
+    {
+      "time_window": "1800-1850",
+      "clustering_coefficient": 0.7103378831808707,
+      "movement_synchronization": 0.12924028659472428,
+      "active_agents": 30
+    },
+    {
+      "time_window": "1825-1875",
+      "clustering_coefficient": 0.7096164378977063,
+      "movement_synchronization": 0.11835479061121362,
+      "active_agents": 30
+    },
+    {
+      "time_window": "1850-1900",
+      "clustering_coefficient": 0.7090250721162665,
+      "movement_synchronization": 0.12159648406480239,
+      "active_agents": 30
+    },
+    {
+      "time_window": "1875-1925",
+      "clustering_coefficient": 0.7083060337649538,
+      "movement_synchronization": 0.1481825656868342,
+      "active_agents": 30
+    },
+    {
+      "time_window": "1900-1950",
+      "clustering_coefficient": 0.707753064173604,
+      "movement_synchronization": 0.12770031545201765,
+      "active_agents": 30
+    },
+    {
+      "time_window": "1925-1975",
+      "clustering_coefficient": 0.7068767132307479,
+      "movement_synchronization": 0.1298843034157348,
+      "active_agents": 30
+    },
+    {
+      "time_window": "1950-2000",
+      "clustering_coefficient": 0.7061239562513677,
+      "movement_synchronization": 0.1485639740859448,
+      "active_agents": 30
+    },
+    {
+      "time_window": "1975-2025",
+      "clustering_coefficient": 0.7089847880783288,
+      "movement_synchronization": 0.6650637984158294,
+      "active_agents": 30
+    },
+    {
+      "time_window": "2000-2050",
+      "clustering_coefficient": 0.709212202517531,
+      "movement_synchronization": 0.24834728873852424,
+      "active_agents": 30
+    },
+    {
+      "time_window": "2025-2075",
+      "clustering_coefficient": 0.7093909656991889,
+      "movement_synchronization": 0.2565995411679037,
+      "active_agents": 30
+    },
+    {
+      "time_window": "2050-2100",
+      "clustering_coefficient": 0.7094371460491438,
+      "movement_synchronization": 0.25386749138284825,
+      "active_agents": 30
+    },
+    {
+      "time_window": "2075-2125",
+      "clustering_coefficient": 0.7095120953603021,
+      "movement_synchronization": 0.22113796543431918,
+      "active_agents": 30
+    },
+    {
+      "time_window": "2100-2150",
+      "clustering_coefficient": 0.709464641335694,
+      "movement_synchronization": 0.21747047006780285,
+      "active_agents": 30
+    },
+    {
+      "time_window": "2125-2175",
+      "clustering_coefficient": 0.7096421657968028,
+      "movement_synchronization": 0.19681234058539887,
+      "active_agents": 30
+    },
+    {
+      "time_window": "2150-2200",
+      "clustering_coefficient": 0.7100099263876914,
+      "movement_synchronization": 0.1701573405026789,
+      "active_agents": 30
+    },
+    {
+      "time_window": "2175-2225",
+      "clustering_coefficient": 0.7103351044889762,
+      "movement_synchronization": 0.16744960143308923,
+      "active_agents": 30
+    },
+    {
+      "time_window": "2200-2250",
+      "clustering_coefficient": 0.7105115471078722,
+      "movement_synchronization": 0.1909085354962661,
+      "active_agents": 30
+    },
+    {
+      "time_window": "2225-2275",
+      "clustering_coefficient": 0.7108879152492482,
+      "movement_synchronization": 0.20981111816719358,
+      "active_agents": 30
+    },
+    {
+      "time_window": "2250-2300",
+      "clustering_coefficient": 0.7111334008194308,
+      "movement_synchronization": 0.21258410748224724,
+      "active_agents": 30
+    },
+    {
+      "time_window": "2275-2325",
+      "clustering_coefficient": 0.7112784650835138,
+      "movement_synchronization": 0.1758613949294367,
+      "active_agents": 30
+    },
+    {
+      "time_window": "2300-2350",
+      "clustering_coefficient": 0.7112370607865466,
+      "movement_synchronization": 0.16227531337518927,
+      "active_agents": 30
+    },
+    {
+      "time_window": "2325-2375",
+      "clustering_coefficient": 0.7110674147869731,
+      "movement_synchronization": 0.15307613321116212,
+      "active_agents": 30
+    },
+    {
+      "time_window": "2350-2400",
+      "clustering_coefficient": 0.7109902786641826,
+      "movement_synchronization": 0.13296382963676615,
+      "active_agents": 30
+    },
+    {
+      "time_window": "2375-2425",
+      "clustering_coefficient": 0.7108686431493811,
+      "movement_synchronization": 0.11530538056723069,
+      "active_agents": 30
+    },
+    {
+      "time_window": "2400-2450",
+      "clustering_coefficient": 0.7108265902444122,
+      "movement_synchronization": 0.1438893127429893,
+      "active_agents": 30
+    },
+    {
+      "time_window": "2425-2475",
+      "clustering_coefficient": 0.7109212615906015,
+      "movement_synchronization": 0.13305882948350042,
+      "active_agents": 30
+    }
+  ],
+  "causal_relationships": []
+}

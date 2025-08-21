@@ -1,0 +1,313 @@
+{
+  "emergent_patterns": [],
+  "agent_strategies": {
+    "strategy_distribution": {
+      "explorer": 8,
+      "follower": 6,
+      "coordinator": 11
+    },
+    "performance": {
+      "explorer": {
+        "mean": 0.0,
+        "std": 0.0,
+        "max": 0
+      },
+      "follower": {
+        "mean": 0.0,
+        "std": 0.0,
+        "max": 0
+      },
+      "coordinator": {
+        "mean": 0.0,
+        "std": 0.0,
+        "max": 0
+      }
+    }
+  },
+  "temporal_analysis": [
+    {
+      "time_window": "0-50",
+      "clustering_coefficient": 0.7153853060059558,
+      "movement_synchronization": 0.15939761970016197,
+      "active_agents": 25
+    },
+    {
+      "time_window": "25-75",
+      "clustering_coefficient": 0.7142300842948319,
+      "movement_synchronization": 0.15808114403665505,
+      "active_agents": 25
+    },
+    {
+      "time_window": "50-100",
+      "clustering_coefficient": 0.7130184883882678,
+      "movement_synchronization": 0.13947137113499106,
+      "active_agents": 25
+    },
+    {
+      "time_window": "75-125",
+      "clustering_coefficient": 0.7115199234278777,
+      "movement_synchronization": 0.14191340604843627,
+      "active_agents": 25
+    },
+    {
+      "time_window": "100-150",
+      "clustering_coefficient": 0.7103194324458966,
+      "movement_synchronization": 0.1532004711543284,
+      "active_agents": 25
+    },
+    {
+      "time_window": "125-175",
+      "clustering_coefficient": 0.7093154872164978,
+      "movement_synchronization": 0.14032130659010444,
+      "active_agents": 25
+    },
+    {
+      "time_window": "150-200",
+      "clustering_coefficient": 0.7083375648197561,
+      "movement_synchronization": 0.1373629107425123,
+      "active_agents": 25
+    },
+    {
+      "time_window": "175-225",
+      "clustering_coefficient": 0.7077549223189571,
+      "movement_synchronization": 0.14534831295827305,
+      "active_agents": 25
+    },
+    {
+      "time_window": "200-250",
+      "clustering_coefficient": 0.7071133878396612,
+      "movement_synchronization": 0.12551484595283474,
+      "active_agents": 25
+    },
+    {
+      "time_window": "225-275",
+      "clustering_coefficient": 0.7064967923336041,
+      "movement_synchronization": 0.10085614618123225,
+      "active_agents": 25
+    },
+    {
+      "time_window": "250-300",
+      "clustering_coefficient": 0.7061937419247759,
+      "movement_synchronization": 0.11744040740616878,
+      "active_agents": 25
+    },
+    {
+      "time_window": "275-325",
+      "clustering_coefficient": 0.7040523310908278,
+      "movement_synchronization": 0.6250572401987201,
+      "active_agents": 25
+    },
+    {
+      "time_window": "300-350",
+      "clustering_coefficient": 0.7032669908091893,
+      "movement_synchronization": 0.17803182490707267,
+      "active_agents": 25
+    },
+    {
+      "time_window": "325-375",
+      "clustering_coefficient": 0.70256112959058,
+      "movement_synchronization": 0.1676002629273737,
+      "active_agents": 25
+    },
+    {
+      "time_window": "350-400",
+      "clustering_coefficient": 0.7024598633279586,
+      "movement_synchronization": 0.16208669434707001,
+      "active_agents": 25
+    },
+    {
+      "time_window": "375-425",
+      "clustering_coefficient": 0.7021333614574459,
+      "movement_synchronization": 0.16133578113185448,
+      "active_agents": 25
+    },
+    {
+      "time_window": "400-450",
+      "clustering_coefficient": 0.7019820858781628,
+      "movement_synchronization": 0.153379002664487,
+      "active_agents": 25
+    },
+    {
+      "time_window": "425-475",
+      "clustering_coefficient": 0.7020351807944277,
+      "movement_synchronization": 0.1581663997639343,
+      "active_agents": 25
+    },
+    {
+      "time_window": "450-500",
+      "clustering_coefficient": 0.7023381189992379,
+      "movement_synchronization": 0.15228848445625476,
+      "active_agents": 25
+    },
+    {
+      "time_window": "475-525",
+      "clustering_coefficient": 0.7023161849522253,
+      "movement_synchronization": 0.1521235491761147,
+      "active_agents": 25
+    },
+    {
+      "time_window": "500-550",
+      "clustering_coefficient": 0.7024911718362306,
+      "movement_synchronization": 0.18225645796864795,
+      "active_agents": 25
+    },
+    {
+      "time_window": "525-575",
+      "clustering_coefficient": 0.70265495716667,
+      "movement_synchronization": 0.18008158072474084,
+      "active_agents": 25
+    },
+    {
+      "time_window": "550-600",
+      "clustering_coefficient": 0.7026566502790081,
+      "movement_synchronization": 0.14972817290575866,
+      "active_agents": 25
+    },
+    {
+      "time_window": "575-625",
+      "clustering_coefficient": 0.7206792337733091,
+      "movement_synchronization": 0.6600668233142856,
+      "active_agents": 25
+    },
+    {
+      "time_window": "600-650",
+      "clustering_coefficient": 0.7204946584618914,
+      "movement_synchronization": 0.10062751905920836,
+      "active_agents": 25
+    },
+    {
+      "time_window": "625-675",
+      "clustering_coefficient": 0.7203176750795015,
+      "movement_synchronization": 0.08495014357323791,
+      "active_agents": 25
+    },
+    {
+      "time_window": "650-700",
+      "clustering_coefficient": 0.7198939229380722,
+      "movement_synchronization": 0.08616491937632915,
+      "active_agents": 25
+    },
+    {
+      "time_window": "675-725",
+      "clustering_coefficient": 0.7196247648620188,
+      "movement_synchronization": 0.08497238021774606,
+      "active_agents": 25
+    },
+    {
+      "time_window": "700-750",
+      "clustering_coefficient": 0.7193430440901201,
+      "movement_synchronization": 0.09748265580476648,
+      "active_agents": 25
+    },
+    {
+      "time_window": "725-775",
+      "clustering_coefficient": 0.7193230944263962,
+      "movement_synchronization": 0.09901349023700225,
+      "active_agents": 25
+    },
+    {
+      "time_window": "750-800",
+      "clustering_coefficient": 0.718902321007796,
+      "movement_synchronization": 0.10692309871330191,
+      "active_agents": 25
+    },
+    {
+      "time_window": "775-825",
+      "clustering_coefficient": 0.7185353124506964,
+      "movement_synchronization": 0.09410430326463855,
+      "active_agents": 25
+    },
+    {
+      "time_window": "800-850",
+      "clustering_coefficient": 0.7183213270064315,
+      "movement_synchronization": 0.09705581843833892,
+      "active_agents": 25
+    },
+    {
+      "time_window": "825-875",
+      "clustering_coefficient": 0.7178008708384852,
+      "movement_synchronization": 0.0846171516911306,
+      "active_agents": 25
+    }
+  ],
+  "causal_relationships": [
+    {
+      "source": "agent_0",
+      "target": "agent_19",
+      "strength": 0.15317078155784294,
+      "confidence": 0.16024656695232345
+    },
+    {
+      "source": "agent_3",
+      "target": "agent_13",
+      "strength": 0.16586742846115599,
+      "confidence": 0.16024656695232345
+    },
+    {
+      "source": "agent_13",
+      "target": "agent_3",
+      "strength": 0.16980273692140463,
+      "confidence": 0.16024656695232345
+    },
+    {
+      "source": "agent_19",
+      "target": "agent_0",
+      "strength": 0.15214532086889027,
+      "confidence": 0.16024656695232345
+    }
+  ],
+  "error_summary": {
+    "total_errors": 0,
+    "error_details": [],
+    "agent_error_counts": {
+      "0": 0,
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0,
+      "6": 0,
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "10": 0,
+      "11": 0,
+      "12": 0,
+      "13": 0,
+      "14": 0,
+      "15": 0,
+      "16": 0,
+      "17": 0,
+      "18": 0,
+      "19": 0,
+      "20": 0,
+      "21": 0,
+      "22": 0,
+      "23": 0,
+      "24": 0
+    },
+    "max_agent_errors": 0
+  },
+  "performance_metrics": {
+    "total_runtime_seconds": 20.034075498580933,
+    "memory_usage_mb": {
+      "mean": 0.0,
+      "max": 0.0,
+      "final": 0.0
+    },
+    "agents_active": 25,
+    "agents_total": 25
+  },
+  "security_audit": [
+    {
+      "timestamp": 1755748306.9345443,
+      "event": "experiment_completed",
+      "details": {
+        "configuration_hash": "0d161303b6932744005a896dcb6d69c32bdd817d9ce7d034fc15909f8618f312",
+        "data_integrity": "verified",
+        "error_count": 0,
+        "agents_compromised": 0
+      }
+    }
+  ]
+}
