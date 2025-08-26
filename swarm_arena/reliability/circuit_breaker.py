@@ -164,6 +164,25 @@ class CircuitBreaker:
         """Manually force circuit breaker to open state."""
         with self.lock:
             self._change_state(CircuitState.OPEN)
+    
+    def __enter__(self):
+        """Enter context manager."""
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Exit context manager - handle exceptions."""
+        if exc_type is None:
+            # Success case
+            self._on_success()
+            return False
+        
+        if isinstance(exc_val, self.config.expected_exception):
+            # Handle expected exception
+            self._on_failure()
+            return False  # Don't suppress the exception
+        
+        # Non-expected exception, don't handle
+        return False
 
 
 class CircuitBreakerRegistry:

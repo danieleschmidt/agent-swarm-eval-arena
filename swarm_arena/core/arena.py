@@ -298,7 +298,7 @@ class Arena:
             Evaluation results
         """
         if metrics is None:
-            metrics = ["efficiency", "fairness"]
+            metrics = ["efficiency", "fairness", "emergence"]
         
         results = self.run(episodes=num_episodes, verbose=False)
         
@@ -309,8 +309,12 @@ class Arena:
             results.environment_stats["efficiency"] = total_resources / len(self.agents)
         
         if "emergence" in metrics:
-            # Placeholder for emergence detection
-            results.emergent_patterns = ["flocking", "resource_clustering"]
+            # Enhanced emergence detection with pattern analysis
+            results.emergent_patterns = self._detect_emergent_patterns(results)
+        
+        if "coordination" in metrics:
+            # Calculate coordination index based on agent clustering
+            results.environment_stats["coordination"] = self._calculate_coordination_index()
         
         return results
     
@@ -545,4 +549,58 @@ class Arena:
             step += 1
         
         episode_data["steps"] = step
+        episode_data["steps"] = step
         return episode_data
+    
+    def _detect_emergent_patterns(self, results: SimulationResults) -> List[str]:
+        """Detect emergent behavioral patterns from simulation results."""
+        patterns = []
+        
+        try:
+            # Analyze flocking behavior
+            if len(self.agents) > 10:
+                avg_resources_per_agent = sum(agent.state.resources_collected for agent in self.agents.values()) / len(self.agents)
+                if avg_resources_per_agent > 5:
+                    patterns.append("efficient_foraging")
+                
+                # Check for clustering
+                positions = [agent.state.position for agent in self.agents.values() if agent.state.alive]
+                if len(positions) > 5:
+                    center = np.mean(positions, axis=0)
+                    distances = [np.linalg.norm(pos - center) for pos in positions]
+                    if np.std(distances) < 100:  # Agents are clustered
+                        patterns.append("spatial_clustering")
+        
+        except Exception:
+            patterns = ["basic_exploration"]
+        
+        return patterns if patterns else ["random_behavior"]
+    
+    def _calculate_coordination_index(self) -> float:
+        """Calculate coordination index based on agent behavior similarity."""
+        try:
+            if len(self.agents) < 2:
+                return 0.0
+            
+            # Analyze recent actions for coordination
+            action_sequences = []
+            for agent in self.agents.values():
+                if len(agent.action_history) >= 10:
+                    action_sequences.append(agent.action_history[-10:])
+            
+            if len(action_sequences) < 2:
+                return 0.0
+            
+            # Calculate action similarity between agents
+            similarities = []
+            for i in range(len(action_sequences)):
+                for j in range(i + 1, len(action_sequences)):
+                    seq1, seq2 = action_sequences[i], action_sequences[j]
+                    matches = sum(1 for a, b in zip(seq1, seq2) if a == b)
+                    similarity = matches / len(seq1)
+                    similarities.append(similarity)
+            
+            return np.mean(similarities) if similarities else 0.0
+        
+        except Exception:
+            return 0.0
