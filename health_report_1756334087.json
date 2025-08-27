@@ -1,0 +1,27 @@
+{
+  "overall_health": {
+    "status": "healthy",
+    "components": 3,
+    "healthy": 3,
+    "degraded": 0,
+    "critical": 0,
+    "failed": 0,
+    "recent_alerts": 0
+  },
+  "component_health": {
+    "agents": "healthy",
+    "performance": "healthy",
+    "collisions": "healthy"
+  },
+  "recent_alerts": [],
+  "recovery_stats": {
+    "attempts": 0,
+    "successful": 0,
+    "success_rate": 0.0
+  },
+  "circuit_breakers": {
+    "agents": "closed",
+    "performance": "closed",
+    "collisions": "closed"
+  }
+}

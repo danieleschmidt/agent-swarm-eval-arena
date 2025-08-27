@@ -1,0 +1,53 @@
+{
+  "security_status": "vulnerable",
+  "risk_level": "medium",
+  "vulnerabilities": 2,
+  "authentication": {
+    "active_tokens": 1,
+    "failed_attempts_total": 1,
+    "rate_limited_clients": 0
+  },
+  "recent_events": [
+    {
+      "timestamp": "22:36:17",
+      "type": "successful_authentication",
+      "details": {
+        "username": "admin",
+        "security_level": "secret"
+      }
+    },
+    {
+      "timestamp": "22:36:17",
+      "type": "failed_authentication",
+      "details": {
+        "username": "hacker",
+        "client_id": "bad_client"
+      }
+    }
+  ],
+  "security_report": {
+    "status": "vulnerable",
+    "vulnerabilities": [
+      {
+        "type": "insecure_configuration",
+        "severity": "medium",
+        "description": "Insecure default value for 'debug'",
+        "recommendation": "Change debug to a secure value"
+      },
+      {
+        "type": "insecure_configuration",
+        "severity": "medium",
+        "description": "Insecure default value for 'allow_all_origins'",
+        "recommendation": "Change allow_all_origins to a secure value"
+      }
+    ],
+    "risk_level": "medium",
+    "severity_breakdown": {
+      "low": 0,
+      "medium": 2,
+      "high": 0,
+      "critical": 0
+    },
+    "total_vulnerabilities": 2
+  }
+}
