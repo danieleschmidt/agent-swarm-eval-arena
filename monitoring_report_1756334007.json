@@ -1,0 +1,1254 @@
+{
+  "uptime_seconds": 0.16878223419189453,
+  "collection_started": "2025-08-27 22:33:27",
+  "metrics": {
+    "agent_0_decisions": {
+      "count": 200,
+      "mean": 100.5,
+      "min": 1,
+      "max": 200,
+      "sum": 20100,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_0_energy": {
+      "count": 200,
+      "mean": 0.5,
+      "min": -99.0,
+      "max": 100.0,
+      "sum": 100.0,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_0_nearby_agents": {
+      "count": 200,
+      "mean": 0.0,
+      "min": 0,
+      "max": 0,
+      "sum": 0,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_1_decisions": {
+      "count": 200,
+      "mean": 100.5,
+      "min": 1,
+      "max": 200,
+      "sum": 20100,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_1_energy": {
+      "count": 200,
+      "mean": 0.5,
+      "min": -99.0,
+      "max": 100.0,
+      "sum": 100.0,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_1_nearby_agents": {
+      "count": 200,
+      "mean": 0.0,
+      "min": 0,
+      "max": 0,
+      "sum": 0,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_2_decisions": {
+      "count": 200,
+      "mean": 100.5,
+      "min": 1,
+      "max": 200,
+      "sum": 20100,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_2_energy": {
+      "count": 200,
+      "mean": 0.5,
+      "min": -99.0,
+      "max": 100.0,
+      "sum": 100.0,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_2_nearby_agents": {
+      "count": 200,
+      "mean": 0.08,
+      "min": 0,
+      "max": 1,
+      "sum": 16,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_3_decisions": {
+      "count": 200,
+      "mean": 100.5,
+      "min": 1,
+      "max": 200,
+      "sum": 20100,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_3_energy": {
+      "count": 200,
+      "mean": 0.5,
+      "min": -99.0,
+      "max": 100.0,
+      "sum": 100.0,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_3_nearby_agents": {
+      "count": 200,
+      "mean": 0.24,
+      "min": 0,
+      "max": 1,
+      "sum": 48,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_4_decisions": {
+      "count": 200,
+      "mean": 100.5,
+      "min": 1,
+      "max": 200,
+      "sum": 20100,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_4_energy": {
+      "count": 200,
+      "mean": 0.5,
+      "min": -99.0,
+      "max": 100.0,
+      "sum": 100.0,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_4_nearby_agents": {
+      "count": 200,
+      "mean": 1.56,
+      "min": 1,
+      "max": 3,
+      "sum": 312,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_5_decisions": {
+      "count": 200,
+      "mean": 100.5,
+      "min": 1,
+      "max": 200,
+      "sum": 20100,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_5_energy": {
+      "count": 200,
+      "mean": 0.5,
+      "min": -99.0,
+      "max": 100.0,
+      "sum": 100.0,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_5_nearby_agents": {
+      "count": 200,
+      "mean": 0.005,
+      "min": 0,
+      "max": 1,
+      "sum": 1,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_6_decisions": {
+      "count": 200,
+      "mean": 100.5,
+      "min": 1,
+      "max": 200,
+      "sum": 20100,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_6_energy": {
+      "count": 200,
+      "mean": 0.5,
+      "min": -99.0,
+      "max": 100.0,
+      "sum": 100.0,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_6_nearby_agents": {
+      "count": 200,
+      "mean": 0.325,
+      "min": 0,
+      "max": 2,
+      "sum": 65,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_7_decisions": {
+      "count": 200,
+      "mean": 100.5,
+      "min": 1,
+      "max": 200,
+      "sum": 20100,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_7_energy": {
+      "count": 200,
+      "mean": 0.5,
+      "min": -99.0,
+      "max": 100.0,
+      "sum": 100.0,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_7_nearby_agents": {
+      "count": 200,
+      "mean": 1.0,
+      "min": 1,
+      "max": 1,
+      "sum": 200,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_8_decisions": {
+      "count": 200,
+      "mean": 100.5,
+      "min": 1,
+      "max": 200,
+      "sum": 20100,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_8_energy": {
+      "count": 200,
+      "mean": 0.5,
+      "min": -99.0,
+      "max": 100.0,
+      "sum": 100.0,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_8_nearby_agents": {
+      "count": 200,
+      "mean": 1.48,
+      "min": 1,
+      "max": 2,
+      "sum": 296,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_9_decisions": {
+      "count": 200,
+      "mean": 100.5,
+      "min": 1,
+      "max": 200,
+      "sum": 20100,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_9_energy": {
+      "count": 200,
+      "mean": 0.5,
+      "min": -99.0,
+      "max": 100.0,
+      "sum": 100.0,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_9_nearby_agents": {
+      "count": 200,
+      "mean": 0.0,
+      "min": 0,
+      "max": 0,
+      "sum": 0,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_10_decisions": {
+      "count": 200,
+      "mean": 100.5,
+      "min": 1,
+      "max": 200,
+      "sum": 20100,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_10_energy": {
+      "count": 200,
+      "mean": 0.5,
+      "min": -99.0,
+      "max": 100.0,
+      "sum": 100.0,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_10_nearby_agents": {
+      "count": 200,
+      "mean": 0.39,
+      "min": 0,
+      "max": 2,
+      "sum": 78,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_11_decisions": {
+      "count": 200,
+      "mean": 100.5,
+      "min": 1,
+      "max": 200,
+      "sum": 20100,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_11_energy": {
+      "count": 200,
+      "mean": 0.5,
+      "min": -99.0,
+      "max": 100.0,
+      "sum": 100.0,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_11_nearby_agents": {
+      "count": 200,
+      "mean": 0.775,
+      "min": 0,
+      "max": 1,
+      "sum": 155,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_12_decisions": {
+      "count": 200,
+      "mean": 100.5,
+      "min": 1,
+      "max": 200,
+      "sum": 20100,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_12_energy": {
+      "count": 200,
+      "mean": 0.5,
+      "min": -99.0,
+      "max": 100.0,
+      "sum": 100.0,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_12_nearby_agents": {
+      "count": 200,
+      "mean": 1.745,
+      "min": 1,
+      "max": 2,
+      "sum": 349,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_13_decisions": {
+      "count": 200,
+      "mean": 100.5,
+      "min": 1,
+      "max": 200,
+      "sum": 20100,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_13_energy": {
+      "count": 200,
+      "mean": 0.5,
+      "min": -99.0,
+      "max": 100.0,
+      "sum": 100.0,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_13_nearby_agents": {
+      "count": 200,
+      "mean": 0.37,
+      "min": 0,
+      "max": 1,
+      "sum": 74,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_14_decisions": {
+      "count": 200,
+      "mean": 100.5,
+      "min": 1,
+      "max": 200,
+      "sum": 20100,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_14_energy": {
+      "count": 200,
+      "mean": 0.5,
+      "min": -99.0,
+      "max": 100.0,
+      "sum": 100.0,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_14_nearby_agents": {
+      "count": 200,
+      "mean": 0.0,
+      "min": 0,
+      "max": 0,
+      "sum": 0,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_15_decisions": {
+      "count": 200,
+      "mean": 100.5,
+      "min": 1,
+      "max": 200,
+      "sum": 20100,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_15_energy": {
+      "count": 200,
+      "mean": 0.5,
+      "min": -99.0,
+      "max": 100.0,
+      "sum": 100.0,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_15_nearby_agents": {
+      "count": 200,
+      "mean": 1.0,
+      "min": 1,
+      "max": 1,
+      "sum": 200,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_16_decisions": {
+      "count": 200,
+      "mean": 100.5,
+      "min": 1,
+      "max": 200,
+      "sum": 20100,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_16_energy": {
+      "count": 200,
+      "mean": 0.5,
+      "min": -99.0,
+      "max": 100.0,
+      "sum": 100.0,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_16_nearby_agents": {
+      "count": 200,
+      "mean": 0.0,
+      "min": 0,
+      "max": 0,
+      "sum": 0,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_17_decisions": {
+      "count": 200,
+      "mean": 100.5,
+      "min": 1,
+      "max": 200,
+      "sum": 20100,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_17_energy": {
+      "count": 200,
+      "mean": 0.5,
+      "min": -99.0,
+      "max": 100.0,
+      "sum": 100.0,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_17_nearby_agents": {
+      "count": 200,
+      "mean": 0.0,
+      "min": 0,
+      "max": 0,
+      "sum": 0,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_18_decisions": {
+      "count": 200,
+      "mean": 100.5,
+      "min": 1,
+      "max": 200,
+      "sum": 20100,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_18_energy": {
+      "count": 200,
+      "mean": 0.5,
+      "min": -99.0,
+      "max": 100.0,
+      "sum": 100.0,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_18_nearby_agents": {
+      "count": 200,
+      "mean": 0.985,
+      "min": 0,
+      "max": 1,
+      "sum": 197,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_19_decisions": {
+      "count": 200,
+      "mean": 100.5,
+      "min": 1,
+      "max": 200,
+      "sum": 20100,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_19_energy": {
+      "count": 200,
+      "mean": 0.5,
+      "min": -99.0,
+      "max": 100.0,
+      "sum": 100.0,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_19_nearby_agents": {
+      "count": 200,
+      "mean": 1.595,
+      "min": 1,
+      "max": 3,
+      "sum": 319,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_20_decisions": {
+      "count": 200,
+      "mean": 100.5,
+      "min": 1,
+      "max": 200,
+      "sum": 20100,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_20_energy": {
+      "count": 200,
+      "mean": 0.5,
+      "min": -99.0,
+      "max": 100.0,
+      "sum": 100.0,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_20_nearby_agents": {
+      "count": 200,
+      "mean": 1.18,
+      "min": 0,
+      "max": 2,
+      "sum": 236,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_21_decisions": {
+      "count": 200,
+      "mean": 100.5,
+      "min": 1,
+      "max": 200,
+      "sum": 20100,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_21_energy": {
+      "count": 200,
+      "mean": 0.5,
+      "min": -99.0,
+      "max": 100.0,
+      "sum": 100.0,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_21_nearby_agents": {
+      "count": 200,
+      "mean": 0.755,
+      "min": 0,
+      "max": 2,
+      "sum": 151,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_22_decisions": {
+      "count": 200,
+      "mean": 100.5,
+      "min": 1,
+      "max": 200,
+      "sum": 20100,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_22_energy": {
+      "count": 200,
+      "mean": 0.5,
+      "min": -99.0,
+      "max": 100.0,
+      "sum": 100.0,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_22_nearby_agents": {
+      "count": 200,
+      "mean": 0.0,
+      "min": 0,
+      "max": 0,
+      "sum": 0,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_23_decisions": {
+      "count": 200,
+      "mean": 100.5,
+      "min": 1,
+      "max": 200,
+      "sum": 20100,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_23_energy": {
+      "count": 200,
+      "mean": 0.5,
+      "min": -99.0,
+      "max": 100.0,
+      "sum": 100.0,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_23_nearby_agents": {
+      "count": 200,
+      "mean": 0.005,
+      "min": 0,
+      "max": 1,
+      "sum": 1,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_24_decisions": {
+      "count": 200,
+      "mean": 100.5,
+      "min": 1,
+      "max": 200,
+      "sum": 20100,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_24_energy": {
+      "count": 200,
+      "mean": 0.5,
+      "min": -99.0,
+      "max": 100.0,
+      "sum": 100.0,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_24_nearby_agents": {
+      "count": 200,
+      "mean": 1.31,
+      "min": 0,
+      "max": 2,
+      "sum": 262,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_25_decisions": {
+      "count": 200,
+      "mean": 100.5,
+      "min": 1,
+      "max": 200,
+      "sum": 20100,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_25_energy": {
+      "count": 200,
+      "mean": 0.5,
+      "min": -99.0,
+      "max": 100.0,
+      "sum": 100.0,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_25_nearby_agents": {
+      "count": 200,
+      "mean": 0.0,
+      "min": 0,
+      "max": 0,
+      "sum": 0,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_26_decisions": {
+      "count": 200,
+      "mean": 100.5,
+      "min": 1,
+      "max": 200,
+      "sum": 20100,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_26_energy": {
+      "count": 200,
+      "mean": 0.5,
+      "min": -99.0,
+      "max": 100.0,
+      "sum": 100.0,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_26_nearby_agents": {
+      "count": 200,
+      "mean": 0.0,
+      "min": 0,
+      "max": 0,
+      "sum": 0,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_27_decisions": {
+      "count": 200,
+      "mean": 100.5,
+      "min": 1,
+      "max": 200,
+      "sum": 20100,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_27_energy": {
+      "count": 200,
+      "mean": 0.5,
+      "min": -99.0,
+      "max": 100.0,
+      "sum": 100.0,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_27_nearby_agents": {
+      "count": 200,
+      "mean": 0.0,
+      "min": 0,
+      "max": 0,
+      "sum": 0,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_28_decisions": {
+      "count": 200,
+      "mean": 100.5,
+      "min": 1,
+      "max": 200,
+      "sum": 20100,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_28_energy": {
+      "count": 200,
+      "mean": 0.5,
+      "min": -99.0,
+      "max": 100.0,
+      "sum": 100.0,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_28_nearby_agents": {
+      "count": 200,
+      "mean": 0.0,
+      "min": 0,
+      "max": 0,
+      "sum": 0,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_29_decisions": {
+      "count": 200,
+      "mean": 100.5,
+      "min": 1,
+      "max": 200,
+      "sum": 20100,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_29_energy": {
+      "count": 200,
+      "mean": 0.5,
+      "min": -99.0,
+      "max": 100.0,
+      "sum": 100.0,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_29_nearby_agents": {
+      "count": 200,
+      "mean": 0.0,
+      "min": 0,
+      "max": 0,
+      "sum": 0,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_0_distance_moved": {
+      "count": 200,
+      "mean": 3.9691844913599112,
+      "min": 0.09792973986536983,
+      "max": 6.88579928109276,
+      "sum": 793.8368982719822,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_0_total_distance": {
+      "count": 200,
+      "mean": 407.16817608375595,
+      "min": 3.8029350290898165,
+      "max": 793.836898271982,
+      "sum": 81433.6352167512,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_1_distance_moved": {
+      "count": 200,
+      "mean": 3.7419679761065425,
+      "min": 0.05439130199801174,
+      "max": 6.965061847993335,
+      "sum": 748.3935952213085,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_1_total_distance": {
+      "count": 200,
+      "mean": 366.9895147705959,
+      "min": 6.45150807911465,
+      "max": 748.3935952213086,
+      "sum": 73397.90295411918,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_2_distance_moved": {
+      "count": 200,
+      "mean": 4.021890795441173,
+      "min": 0.5250773159238075,
+      "max": 6.8789826932038345,
+      "sum": 804.3781590882346,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_2_total_distance": {
+      "count": 200,
+      "mean": 404.3014410316316,
+      "min": 5.360902158582004,
+      "max": 804.3781590882345,
+      "sum": 80860.28820632632,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_3_distance_moved": {
+      "count": 200,
+      "mean": 3.8448703614728226,
+      "min": 0.6969392306004469,
+      "max": 6.591691694804597,
+      "sum": 768.9740722945645,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_3_total_distance": {
+      "count": 200,
+      "mean": 385.1778434152764,
+      "min": 3.523793057064078,
+      "max": 768.9740722945647,
+      "sum": 77035.56868305529,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_4_distance_moved": {
+      "count": 200,
+      "mean": 3.6126090340621566,
+      "min": 0.0698572592704641,
+      "max": 6.965855458182482,
+      "sum": 722.5218068124314,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_4_total_distance": {
+      "count": 200,
+      "mean": 362.3278529361562,
+      "min": 1.6333836432657494,
+      "max": 722.5218068124317,
+      "sum": 72465.57058723124,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_5_distance_moved": {
+      "count": 200,
+      "mean": 3.73221058456713,
+      "min": 0.22640486236367832,
+      "max": 6.598731476282727,
+      "sum": 746.442116913426,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_5_total_distance": {
+      "count": 200,
+      "mean": 375.68607289800593,
+      "min": 3.018860854138174,
+      "max": 746.4421169134266,
+      "sum": 75137.21457960119,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_6_distance_moved": {
+      "count": 200,
+      "mean": 3.6499013901915633,
+      "min": 0.402163776442186,
+      "max": 6.682224771576477,
+      "sum": 729.9802780383127,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_6_total_distance": {
+      "count": 200,
+      "mean": 362.87018673848354,
+      "min": 1.8769439685754983,
+      "max": 729.9802780383128,
+      "sum": 72574.0373476967,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_7_distance_moved": {
+      "count": 200,
+      "mean": 3.934508185768584,
+      "min": 0.29070663920020046,
+      "max": 6.531926868550443,
+      "sum": 786.9016371537168,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_7_total_distance": {
+      "count": 200,
+      "mean": 394.994545155677,
+      "min": 6.492371944505816,
+      "max": 786.9016371537174,
+      "sum": 78998.9090311354,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_8_distance_moved": {
+      "count": 200,
+      "mean": 3.8066150146336515,
+      "min": 0.6513865066721133,
+      "max": 6.851683138992827,
+      "sum": 761.3230029267303,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_8_total_distance": {
+      "count": 200,
+      "mean": 386.97125882667984,
+      "min": 2.1953608424949156,
+      "max": 761.3230029267303,
+      "sum": 77394.25176533597,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_9_distance_moved": {
+      "count": 200,
+      "mean": 3.8866473286078356,
+      "min": 0.13633516264555404,
+      "max": 6.954347389644135,
+      "sum": 777.3294657215671,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_9_total_distance": {
+      "count": 200,
+      "mean": 393.8637040458118,
+      "min": 5.649122060793313,
+      "max": 777.3294657215671,
+      "sum": 78772.74080916237,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_10_distance_moved": {
+      "count": 200,
+      "mean": 3.9280645332325226,
+      "min": 0.46076272244424055,
+      "max": 6.748998545884494,
+      "sum": 785.6129066465045,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_10_total_distance": {
+      "count": 200,
+      "mean": 391.41551433973376,
+      "min": 4.1475859000182345,
+      "max": 785.6129066465046,
+      "sum": 78283.10286794676,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_11_distance_moved": {
+      "count": 200,
+      "mean": 3.9479072736267353,
+      "min": 0.3343017544110119,
+      "max": 6.94401824108493,
+      "sum": 789.581454725347,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_11_total_distance": {
+      "count": 200,
+      "mean": 396.2205940967964,
+      "min": 0.7787052171774269,
+      "max": 789.5814547253474,
+      "sum": 79244.11881935928,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_12_distance_moved": {
+      "count": 200,
+      "mean": 3.8215173001473244,
+      "min": 0.25202009292063293,
+      "max": 6.71654298910804,
+      "sum": 764.3034600294649,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_12_total_distance": {
+      "count": 200,
+      "mean": 385.4225392093382,
+      "min": 4.740941235808449,
+      "max": 764.3034600294653,
+      "sum": 77084.50784186764,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_13_distance_moved": {
+      "count": 200,
+      "mean": 3.941819139804271,
+      "min": 0.5519721066687157,
+      "max": 6.996967096761711,
+      "sum": 788.3638279608542,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_13_total_distance": {
+      "count": 200,
+      "mean": 395.2839680977576,
+      "min": 6.0066079317916365,
+      "max": 788.3638279608545,
+      "sum": 79056.79361955152,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_14_distance_moved": {
+      "count": 200,
+      "mean": 3.8155456390686004,
+      "min": 0.39419095731330445,
+      "max": 6.6356318100533676,
+      "sum": 763.1091278137201,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_14_total_distance": {
+      "count": 200,
+      "mean": 386.0189987769693,
+      "min": 5.6373164648372915,
+      "max": 763.10912781372,
+      "sum": 77203.79975539386,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_15_distance_moved": {
+      "count": 200,
+      "mean": 3.774286600249102,
+      "min": 0.4216618245334248,
+      "max": 6.611108705297489,
+      "sum": 754.8573200498204,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_15_total_distance": {
+      "count": 200,
+      "mean": 374.9971667437339,
+      "min": 4.494101431709948,
+      "max": 754.8573200498201,
+      "sum": 74999.43334874678,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_16_distance_moved": {
+      "count": 200,
+      "mean": 3.8332330958671226,
+      "min": 0.33600194877073003,
+      "max": 6.741762716557764,
+      "sum": 766.6466191734245,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_16_total_distance": {
+      "count": 200,
+      "mean": 392.7735457769538,
+      "min": 5.400814633328234,
+      "max": 766.6466191734246,
+      "sum": 78554.70915539077,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_17_distance_moved": {
+      "count": 200,
+      "mean": 3.9736136772240127,
+      "min": 0.10783426798431782,
+      "max": 6.976446330640437,
+      "sum": 794.7227354448025,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_17_total_distance": {
+      "count": 200,
+      "mean": 397.0368201460632,
+      "min": 3.1732443957217016,
+      "max": 794.7227354448021,
+      "sum": 79407.36402921264,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_18_distance_moved": {
+      "count": 200,
+      "mean": 3.9226289078509584,
+      "min": 0.5801009486792652,
+      "max": 6.987088289445578,
+      "sum": 784.5257815701917,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_18_total_distance": {
+      "count": 200,
+      "mean": 397.11459941647513,
+      "min": 5.130094386002372,
+      "max": 784.5257815701917,
+      "sum": 79422.91988329502,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_19_distance_moved": {
+      "count": 200,
+      "mean": 3.824725994678063,
+      "min": 0.503050190658886,
+      "max": 6.982702827062861,
+      "sum": 764.9451989356126,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_19_total_distance": {
+      "count": 200,
+      "mean": 380.0417508516449,
+      "min": 5.446679954035478,
+      "max": 764.945198935612,
+      "sum": 76008.35017032898,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_20_distance_moved": {
+      "count": 200,
+      "mean": 3.864279797739648,
+      "min": 0.6385774273950732,
+      "max": 6.8391584404993555,
+      "sum": 772.8559595479296,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_20_total_distance": {
+      "count": 200,
+      "mean": 390.47206458130313,
+      "min": 5.007412119734094,
+      "max": 772.85595954793,
+      "sum": 78094.41291626063,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_21_distance_moved": {
+      "count": 200,
+      "mean": 3.5761300511682896,
+      "min": 0.42291140631984,
+      "max": 6.955680600122469,
+      "sum": 715.2260102336579,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_21_total_distance": {
+      "count": 200,
+      "mean": 358.4926066442222,
+      "min": 1.6808037948339787,
+      "max": 715.2260102336583,
+      "sum": 71698.52132884444,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_22_distance_moved": {
+      "count": 200,
+      "mean": 3.9246478104618676,
+      "min": 0.10014122231602518,
+      "max": 6.884209123326537,
+      "sum": 784.9295620923735,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_22_total_distance": {
+      "count": 200,
+      "mean": 389.19198258775754,
+      "min": 1.4278426882830806,
+      "max": 784.9295620923732,
+      "sum": 77838.3965175515,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_23_distance_moved": {
+      "count": 200,
+      "mean": 3.916951672589436,
+      "min": 0.4834726774361552,
+      "max": 6.707621408112529,
+      "sum": 783.3903345178873,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_23_total_distance": {
+      "count": 200,
+      "mean": 399.347679640655,
+      "min": 3.2992059394272504,
+      "max": 783.3903345178871,
+      "sum": 79869.535928131,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_24_distance_moved": {
+      "count": 200,
+      "mean": 3.7558467856346924,
+      "min": 0.5870435673080927,
+      "max": 6.872179886568518,
+      "sum": 751.1693571269385,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_24_total_distance": {
+      "count": 200,
+      "mean": 395.0705002667605,
+      "min": 2.8504779851530966,
+      "max": 751.1693571269386,
+      "sum": 79014.1000533521,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_25_distance_moved": {
+      "count": 200,
+      "mean": 3.7493791357674486,
+      "min": 0.5392187567354181,
+      "max": 6.774584119048827,
+      "sum": 749.8758271534897,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_25_total_distance": {
+      "count": 200,
+      "mean": 373.40271394532516,
+      "min": 1.411961434551841,
+      "max": 749.8758271534896,
+      "sum": 74680.54278906503,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_26_distance_moved": {
+      "count": 200,
+      "mean": 3.794961194367717,
+      "min": 0.4401589987983252,
+      "max": 6.92045043740305,
+      "sum": 758.9922388735433,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_26_total_distance": {
+      "count": 200,
+      "mean": 378.3147328033138,
+      "min": 2.426588073114872,
+      "max": 758.9922388735429,
+      "sum": 75662.94656066276,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_27_distance_moved": {
+      "count": 200,
+      "mean": 3.7989817185028607,
+      "min": 0.25932019826317304,
+      "max": 6.92562159035628,
+      "sum": 759.7963437005722,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_27_total_distance": {
+      "count": 200,
+      "mean": 389.11507734833367,
+      "min": 1.9866114324579838,
+      "max": 759.7963437005718,
+      "sum": 77823.01546966673,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_28_distance_moved": {
+      "count": 200,
+      "mean": 3.890834551684329,
+      "min": 0.11784022074362199,
+      "max": 6.935912105042799,
+      "sum": 778.1669103368657,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_28_total_distance": {
+      "count": 200,
+      "mean": 392.82524539652366,
+      "min": 4.266015223752885,
+      "max": 778.1669103368654,
+      "sum": 78565.04907930474,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_29_distance_moved": {
+      "count": 200,
+      "mean": 3.8758362818816443,
+      "min": 0.22470160159228644,
+      "max": 6.574412274126516,
+      "sum": 775.1672563763289,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agent_29_total_distance": {
+      "count": 200,
+      "mean": 393.9757161109053,
+      "min": 4.87274904454362,
+      "max": 775.1672563763292,
+      "sum": 78795.14322218105,
+      "rate_per_second": 3.3333333333333335
+    },
+    "step_duration": {
+      "count": 200,
+      "mean": 0.0006442821025848389,
+      "min": 0.0005044937133789062,
+      "max": 0.001859903335571289,
+      "sum": 0.12885642051696777,
+      "rate_per_second": 3.3333333333333335
+    },
+    "total_energy": {
+      "count": 200,
+      "mean": -15.0,
+      "min": -3000.0,
+      "max": 2970.0,
+      "sum": -3000.0,
+      "rate_per_second": 3.3333333333333335
+    },
+    "energy_consumed_per_step": {
+      "count": 200,
+      "mean": 30.0,
+      "min": 30.0,
+      "max": 30.0,
+      "sum": 6000.0,
+      "rate_per_second": 3.3333333333333335
+    },
+    "agents_alive": {
+      "count": 200,
+      "mean": 14.85,
+      "min": 0,
+      "max": 30,
+      "sum": 2970,
+      "rate_per_second": 3.3333333333333335
+    },
+    "collisions_per_step": {
+      "count": 200,
+      "mean": 0.085,
+      "min": 0,
+      "max": 1,
+      "sum": 17,
+      "rate_per_second": 3.3333333333333335
+    },
+    "total_collisions": {
+      "count": 200,
+      "mean": 6.98,
+      "min": 0,
+      "max": 17,
+      "sum": 1396,
+      "rate_per_second": 3.3333333333333335
+    }
+  }
+}
