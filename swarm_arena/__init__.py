@@ -1,40 +1,53 @@
 """
-Swarm Arena: Real-Time Arena for Multi-Agent Reinforcement Learning
+Agent Swarm Eval Arena
+======================
+Benchmark and compare agent strategies on multi-agent coordination tasks.
 
-A massively scalable evaluation platform for Multi-Agent Reinforcement Learning (MARL) 
-research supporting 1000+ concurrent agents with real-time telemetry and comprehensive 
-benchmarking capabilities.
+Quick start::
+
+    from swarm_arena import Arena, TournamentRunner, EvalReport
+    from swarm_arena.agents import RandomAgent, GreedyAgent, CooperativeAgent
+    from swarm_arena.tasks import ResourceAllocationTask, CoordinationTask, CompetitiveTask
+
+    agents = [RandomAgent("rand"), GreedyAgent("greedy"), CooperativeAgent("coop")]
+    tasks  = [ResourceAllocationTask(), CoordinationTask(), CompetitiveTask()]
+    runner = TournamentRunner(agents, tasks, n_episodes=10)
+    result = runner.run()
+    report = EvalReport.from_tournament(result, n_episodes=10)
+    print(report.to_text())
 """
 
-__version__ = "0.1.0"
-__author__ = "Daniel Schmidt"
-__email__ = "daniel@terragon.ai"
-
-from .core.arena import Arena
-from .core.agent import (
-    Agent, BaseAgent, CooperativeAgent, CompetitiveAgent, RandomAgent,
-    LearningAgent, HierarchicalAgent, SwarmAgent, AdaptiveAgent
+from .agents import Agent, CooperativeAgent, GreedyAgent, RandomAgent
+from .arena import Arena
+from .report import EvalReport
+from .tasks import (
+    CompetitiveTask,
+    CoordinationTask,
+    ResourceAllocationTask,
+    Task,
+    TaskResult,
 )
-from .core.config import SwarmConfig
-from .core.environment import Environment
-from .utils.seeding import set_global_seed
-from .monitoring.telemetry import TelemetryCollector, TelemetryData
+from .tournament import TournamentResult, TournamentRunner
 
-# Main exports for public API
 __all__ = [
-    "Arena",
-    "Agent", 
-    "BaseAgent",
-    "CooperativeAgent",
-    "CompetitiveAgent", 
+    # agents
+    "Agent",
     "RandomAgent",
-    "LearningAgent",
-    "HierarchicalAgent",
-    "SwarmAgent",
-    "AdaptiveAgent",
-    "SwarmConfig",
-    "Environment",
-    "set_global_seed",
-    "TelemetryCollector",
-    "TelemetryData",
+    "GreedyAgent",
+    "CooperativeAgent",
+    # tasks
+    "Task",
+    "TaskResult",
+    "ResourceAllocationTask",
+    "CoordinationTask",
+    "CompetitiveTask",
+    # arena
+    "Arena",
+    # tournament
+    "TournamentRunner",
+    "TournamentResult",
+    # report
+    "EvalReport",
 ]
+
+__version__ = "0.2.0"
